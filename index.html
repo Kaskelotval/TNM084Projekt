@@ -37,7 +37,8 @@
     <script src="js/three.min.js"></script>
     <script id="vertexShader" type="x-shader/x-vertex">
         void main() {
-            gl_Position = vec4( position, 1.0 );
+          //  gl_Position = vec4( position, 1.0 );
+            gl_Position = projectionMatrix*modelViewMatrix*vec4( position, 1.0 );
         }
     </script>
     <script id="fragmentShader" type="x-shader/x-fragment">
@@ -58,7 +59,8 @@
         animate();
 
         function init() {
-          renderer = new THREE.WebGLRenderer();
+          	
+          	renderer = new THREE.WebGLRenderer();
             
 			renderer.setSize( window.innerWidth, window.innerHeight );
             container = document.getElementById( 'container' );
@@ -100,7 +102,7 @@
 
         function onWindowResize( event ) {
         	camera.aspect = window.innerWidth / window.innerHeight;
-			//camera.updateProjectionMatrix();
+			camera.updateProjectionMatrix();
 			renderer.setSize( window.innerWidth, window.innerHeight );
             renderer.render(scene,camera);
             uniforms.u_resolution.value.x = window.innerWidth;
