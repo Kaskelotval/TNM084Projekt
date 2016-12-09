@@ -35,21 +35,9 @@
 
   <div id="container"></div>
     <script src="js/three.min.js"></script>
-    <script id="vertexShader" type="x-shader/x-vertex">
-        void main() {
-          //  gl_Position = vec4( position, 1.0 );
-            gl_Position = projectionMatrix*modelViewMatrix*vec4( position, 1.0 );
-        }
-    </script>
-    <script id="fragmentShader" type="x-shader/x-fragment">
-        uniform vec2 u_resolution;
-        uniform float u_time;
+        <script src="shaders/vertex.js"></script>
+        <script src="shaders/fragment.js"></script>
 
-        void main() {
-            vec2 st = gl_FragCoord.xy/u_resolution.xy;
-            gl_FragColor=vec4(abs(sin(u_time))*st.x,st.y,0.0,1.0);
-        }
-    </script>
     <script>
         var container;
         var camera, scene, renderer, cameraControls;
@@ -72,7 +60,27 @@
 			cameraControls	= new THREE.TrackballControls( camera )
 			// transparently support window resize
 
-            var geometry = new THREE.SphereGeometry( 1, 15,15 );
+
+			//Lights
+			var light	= new THREE.AmbientLight( Math.random() * 0xffffff );
+			scene.add( light );
+			var light	= new THREE.DirectionalLight( Math.random() * 0xffffff );
+			light.position.set( Math.random(), Math.random(), Math.random() ).normalize();
+			scene.add( light );
+			var light	= new THREE.DirectionalLight( Math.random() * 0xffffff );
+			light.position.set( Math.random(), Math.random(), Math.random() ).normalize();
+			scene.add( light );
+			var light	= new THREE.PointLight( Math.random() * 0xffffff );
+			light.position.set( Math.random()-0.5, Math.random()-0.5, Math.random()-0.5 )
+						.normalize().multiplyScalar(1.2);
+			scene.add( light );
+			var light	= new THREE.PointLight( Math.random() * 0xffffff );
+			light.position.set( Math.random()-0.5, Math.random()-0.5, Math.random()-0.5 )
+						.normalize().multiplyScalar(1.2);
+			scene.add( light );
+
+
+            var geometry = new THREE.SphereGeometry( 1, 25,25 );
 
             uniforms = {
                 u_time: { type: "f", value: 1.0 },
@@ -82,8 +90,8 @@
 
             var material = new THREE.ShaderMaterial( {
                 uniforms: uniforms,
-                vertexShader: document.getElementById( 'vertexShader' ).textContent,
-                fragmentShader: document.getElementById( 'fragmentShader' ).textContent
+                vertexShader: vertexShader,
+                fragmentShader: FragmentShader
             } );
 
             var mesh = new THREE.Mesh( geometry, material );
