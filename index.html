@@ -41,14 +41,16 @@
     <script>
         var container;
         var camera, scene, renderer, cameraControls;
-        var uniforms;
+        var uniforms, light;
+        var date = new Date();   
+        var disp = 2;     
 
         init();
         animate();
 
         function init() {
           	
-          	renderer = new THREE.WebGLRenderer();
+          	renderer = new THREE.WebGLRenderer({alpha: true});
             
 			renderer.setSize( window.innerWidth, window.innerHeight );
             container = document.getElementById( 'container' );
@@ -62,40 +64,54 @@
 
 
 			//Lights
-			var light	= new THREE.AmbientLight( Math.random() * 0xffffff );
-			scene.add( light );
-			var light	= new THREE.DirectionalLight( Math.random() * 0xffffff );
-			light.position.set( Math.random(), Math.random(), Math.random() ).normalize();
-			scene.add( light );
-			var light	= new THREE.DirectionalLight( Math.random() * 0xffffff );
-			light.position.set( Math.random(), Math.random(), Math.random() ).normalize();
-			scene.add( light );
-			var light	= new THREE.PointLight( Math.random() * 0xffffff );
-			light.position.set( Math.random()-0.5, Math.random()-0.5, Math.random()-0.5 )
-						.normalize().multiplyScalar(1.2);
-			scene.add( light );
-			var light	= new THREE.PointLight( Math.random() * 0xffffff );
-			light.position.set( Math.random()-0.5, Math.random()-0.5, Math.random()-0.5 )
-						.normalize().multiplyScalar(1.2);
-			scene.add( light );
+			// Create light
+			light1 = new THREE.PointLight(0xffffff, 1.0);
+			// We want it to be very close to our character
+			var lightBall = new THREE.Mesh( new THREE.SphereGeometry( 0.3, 16, 16 ), new THREE.MeshBasicMaterial( { color: 0xFF00FF } ) );
+			light1.add(lightBall);
+			light1.position.set(0.0,2.0,0.0);
+			scene.add(light1);
 
 
+			light2 = new THREE.PointLight(0xffffff, 1.0);
+			// We want it to be very close to our character
+			var lightBall = new THREE.Mesh( new THREE.SphereGeometry( 0.5, 16, 16 ), new THREE.MeshBasicMaterial( { color: 0xFF00FF } ) );
+			light2.add(lightBall);
+			light2.position.set(3.0,0.0,0.0);
+			scene.add(light2);
+
+			//sphere
             var geometry = new THREE.SphereGeometry( 1, 25,25 );
 
-            uniforms = {
-                u_time: { type: "f", value: 1.0 },
-                u_resolution: { type: "v2", value: new THREE.Vector2() },
-                u_mouse: { type: "v2", value: new THREE.Vector2() }
-            };
+            uniforms = 	{
+	                u_time: { type: "f", value: 1.0 },
+	                u_resolution: { type: "v2", value: new THREE.Vector2() },
+	                u_mouse: { type: "v2", value: new THREE.Vector2() },
+	                u_light1Pos: { type: "v3", value: light1.position},
+	                u_light1Col: { type: "v3", value: new THREE.Vector3(0,0,1)},
+	                u_light2Pos: { type: "v3", value: light2.position},
+	                u_light2Col: { type: "v3", value: new THREE.Vector3(1,0,0)}	    
+            	};
 
             var material = new THREE.ShaderMaterial( {
                 uniforms: uniforms,
                 vertexShader: vertexShader,
-                fragmentShader: FragmentShader
+                fragmentShader: FragmentShader,
             } );
 
             var mesh = new THREE.Mesh( geometry, material );
             scene.add( mesh );
+			//plane
+			var geometry = new THREE.PlaneGeometry( 10, 10, 32 );
+			var material = new THREE.ShaderMaterial( {
+				uniforms: uniforms,
+				vertexShader: vertexShader,
+                fragmentShader: FragmentShader,
+			} );
+			var plane = new THREE.Mesh( geometry, material );
+			plane.rotation.x = -90;
+			plane.position.y = -2;
+			scene.add( plane );
 
             container.appendChild( renderer.domElement );
 
@@ -117,13 +133,16 @@
             uniforms.u_resolution.value.y = window.innerHeight;
         }
 
-        function animate() {
+        function animate() {	        	
             requestAnimationFrame( animate );
             render();
         }
 
         function render() {
-
+        	//Move lights
+        	light1.position.x=Math.sin(uniforms.u_time.value);
+        	light2.position.x=Math.cos(uniforms.u_time.value)*disp;
+        	light2.position.z=Math.sin(uniforms.u_time.value)*disp;
 			cameraControls.update();
             uniforms.u_time.value += 0.05;
             renderer.render( scene, camera );
