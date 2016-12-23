@@ -37,11 +37,15 @@
     <script src="js/three.min.js"></script>
         <script src="shaders/vertex.js"></script>
         <script src="shaders/fragment.js"></script>
-
+        <script src="shaders/seaVertex.js"></script>
+        <script src="shaders/seaFragment.js"></script>
+        <script src="shaders/landVertex.js"></script>
+        <script src="shaders/landFragment.js"></script>
     <script>
         var container;
         var camera, scene, renderer, cameraControls;
-        var uniforms, light;
+        var uniforms, light1, light2, sphere;
+        var landMeshRef, seaMeshRef;
         var date = new Date();   
         var disp = 2;     
 
@@ -67,51 +71,61 @@
 			// Create light
 			light1 = new THREE.PointLight(0xffffff, 1.0);
 			// We want it to be very close to our character
-			var lightBall = new THREE.Mesh( new THREE.SphereGeometry( 0.3, 16, 16 ), new THREE.MeshBasicMaterial( { color: 0xFF00FF } ) );
+			var lightBall = new THREE.Mesh( new THREE.SphereGeometry( 0.3, 16, 16 ), new THREE.MeshBasicMaterial( { color: 0x0000FF } ) );
+			light1.position.set(0.0,0.0,-1.0);
 			light1.add(lightBall);
-			light1.position.set(0.0,2.0,0.0);
 			scene.add(light1);
 
-
 			light2 = new THREE.PointLight(0xffffff, 1.0);
-			// We want it to be very close to our character
-			var lightBall = new THREE.Mesh( new THREE.SphereGeometry( 0.5, 16, 16 ), new THREE.MeshBasicMaterial( { color: 0xFF00FF } ) );
+
+			var lightBall = new THREE.Mesh( new THREE.SphereGeometry( 0.3, 16, 16 ), new THREE.MeshBasicMaterial( { color: 0xFF0000 } ) );
+			light2.position.set(3.0,0.0,0.0);			
 			light2.add(lightBall);
-			light2.position.set(3.0,0.0,0.0);
 			scene.add(light2);
 
-			//sphere
-            var geometry = new THREE.SphereGeometry( 1, 25,25 );
-
-            uniforms = 	{
+			//sea
+            suniforms = 	{
 	                u_time: { type: "f", value: 1.0 },
 	                u_resolution: { type: "v2", value: new THREE.Vector2() },
 	                u_mouse: { type: "v2", value: new THREE.Vector2() },
 	                u_light1Pos: { type: "v3", value: light1.position},
-	                u_light1Col: { type: "v3", value: new THREE.Vector3(0,0,1)},
+	                u_light1Col: { type: "v3", value: new THREE.Vector3(10,10,10)},
 	                u_light2Pos: { type: "v3", value: light2.position},
 	                u_light2Col: { type: "v3", value: new THREE.Vector3(1,0,0)}	    
             	};
 
+            var geometry = new THREE.PlaneBufferGeometry( 200, 200, 200 );
             var material = new THREE.ShaderMaterial( {
-                uniforms: uniforms,
-                vertexShader: vertexShader,
-                fragmentShader: FragmentShader,
+                uniforms: suniforms,
+                vertexShader: seaVertex,
+                fragmentShader: seaFragment,
             } );
+			var sea = new THREE.Mesh( geometry, material );
+            sea.position.z = -4;	            
+			scene.add( sea );
 
-            var mesh = new THREE.Mesh( geometry, material );
-            scene.add( mesh );
-			//plane
-			var geometry = new THREE.PlaneGeometry( 10, 10, 32 );
-			var material = new THREE.ShaderMaterial( {
-				uniforms: uniforms,
-				vertexShader: vertexShader,
-                fragmentShader: FragmentShader,
-			} );
-			var plane = new THREE.Mesh( geometry, material );
-			plane.rotation.x = -90;
-			plane.position.y = -2;
-			scene.add( plane );
+			//landscape
+			luniforms = {
+	                u_time: { type: "f", value: 1.0 },
+	                u_resolution: { type: "v2", value: new THREE.Vector2() },
+	                u_mouse: { type: "v2", value: new THREE.Vector2() },
+	                u_light1Pos: { type: "v3", value: light1.position},
+	                u_light1Col: { type: "v3", value: new THREE.Vector3(10,10,10)},
+	                u_light2Pos: { type: "v3", value: light2.position},
+	                u_light2Col: { type: "v3", value: new THREE.Vector3(0.7,0.7,0.7)}					
+			};
+
+            landgeometry = new THREE.PlaneGeometry( 200, 200, 100,100);
+            landmaterial = new THREE.ShaderMaterial( {
+                uniforms: luniforms,
+                vertexShader: landVertex,
+                fragmentShader: landFragment,
+            } );
+			var land = new THREE.Mesh( landgeometry, landmaterial );
+			land.rotation.x = Math.PI*3/2;
+            land.position.z = -3;	            
+			scene.add( land );
+
 
             container.appendChild( renderer.domElement );
 
@@ -119,8 +133,8 @@
             window.addEventListener( 'resize', onWindowResize, false );
 
             document.onmousemove = function(e){
-              uniforms.u_mouse.value.x = e.pageX
-              uniforms.u_mouse.value.y = e.pageY
+              suniforms.u_mouse.value.x = e.pageX
+              suniforms.u_mouse.value.y = e.pageY
             }
         }
 
@@ -129,8 +143,8 @@
 			camera.updateProjectionMatrix();
 			renderer.setSize( window.innerWidth, window.innerHeight );
             renderer.render(scene,camera);
-            uniforms.u_resolution.value.x = window.innerWidth;
-            uniforms.u_resolution.value.y = window.innerHeight;
+            suniforms.u_resolution.value.x = window.innerWidth;
+            suniforms.u_resolution.value.y = window.innerHeight;
         }
 
         function animate() {	        	
@@ -140,11 +154,14 @@
 
         function render() {
         	//Move lights
-        	light1.position.x=Math.sin(uniforms.u_time.value);
-        	light2.position.x=Math.cos(uniforms.u_time.value)*disp;
-        	light2.position.z=Math.sin(uniforms.u_time.value)*disp;
+        	light1.position.x = Math.sin(2*suniforms.u_time.value)*(disp);
+        	light1.position.y = Math.cos(2*suniforms.u_time.value)*(disp);
+        	light2.position.x = Math.cos(suniforms.u_time.value)*disp;
+        	light2.position.z = Math.sin(suniforms.u_time.value)*disp;
 			cameraControls.update();
-            uniforms.u_time.value += 0.05;
+            suniforms.u_time.value += 0.05;
+            luniforms.u_time.value += 0.05;
+
             renderer.render( scene, camera );
         }
     </script>
