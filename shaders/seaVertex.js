@@ -186,8 +186,10 @@ float pnoise(vec3 P, vec3 rep)
         varying vec3 vUv;
         varying vec3 vecNormal;
         varying vec3 vecPos;
+        varying vec3 camN;
 
         void main() {
+          //camera normal
           vUv = position;
         	float noise = pnoise(1.0*position+vec3(0.2,0.2,0.8)*0.2*u_time , vec3(100,100,0));
         	vec3 newpos = position + 0.4*noise;

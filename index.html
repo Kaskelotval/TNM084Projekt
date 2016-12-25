@@ -10,7 +10,7 @@
 		<script src="vendor/three.js/Detector.js"></script>
 		<!-- https://github.com/mrdoob/stats.js -->
 		<script src="vendor/three.js/Stats.js"></script>
-
+		<script type="text/javascript" src="dat.gui.js"></script>
 		<script src="vendor/threex/THREEx.screenshot.js"></script>
 		<script src="vendor/threex/THREEx.FullScreen.js"></script>
 		<script src="vendor/threex/THREEx.WindowResize.js"></script>
@@ -20,7 +20,7 @@
 	</head>
 <body>
 	<!-- three.js container -->
-    	<div id="container"></div>
+    <div id="container"></div>
 	<!-- info on screen display -->
 	<div id="info">
 		<div class="top">
@@ -35,35 +35,55 @@
 
   <div id="container"></div>
     <script src="js/three.min.js"></script>
-        <script src="shaders/vertex.js"></script>
-        <script src="shaders/fragment.js"></script>
-        <script src="shaders/seaVertex.js"></script>
-        <script src="shaders/seaFragment.js"></script>
-        <script src="shaders/landVertex.js"></script>
-        <script src="shaders/landFragment.js"></script>
+    <script src="shaders/vertex.js"></script>
+    <script src="shaders/fragment.js"></script>
+    <script src="shaders/seaVertex.js"></script>
+    <script src="shaders/seaFragment.js"></script>
+    <script src="shaders/landVertex.js"></script>
+    <script src="shaders/landFragment.js"></script>
+
     <script>
         var container;
         var camera, scene, renderer, cameraControls;
         var uniforms, light1, light2, sphere;
         var landMeshRef, seaMeshRef;
+        var a_var;
         var date = new Date();   
         var disp = 200;     
+
+        //GUI
+
 
         init();
         animate();
 
         function init() {
-          	
+
+          	//initial values
+          	a_var = {a_var:0.01};
+          	b_var = {b_var:0.01}
+          	//GUI
+			var gui = new dat.GUI();
+			gui.add(a_var, 'a_var', 0.001, 0.04);
+			gui.add(b_var, 'b_var', 0.001, 0.04);
+
+
+			//RENDERER
           	renderer = new THREE.WebGLRenderer({alpha: true});
+			renderer.setClearColor( 0xffffff );
             
 			renderer.setSize( window.innerWidth, window.innerHeight );
             container = document.getElementById( 'container' );
 
            	scene = new THREE.Scene();
+
 			camera	= new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 1, 10000 );
+			camera.rotation = Math.PI/2;
+
 			camera.position.set(0, 0, 200);
+			cameraControls	= new THREE.TrackballControls( camera, renderer.domElement)			
 			scene.add(camera);
-			cameraControls	= new THREE.TrackballControls( camera )
+
 			// transparently support window resize
 
 
@@ -76,7 +96,7 @@
 			var light1Col = new THREE.Vector3(0.2,0.2,0.2);
 
 			light2 = new THREE.PointLight(0xffffff, 1.0);
-			var lightBall = new THREE.Mesh( new THREE.SphereGeometry( 0.3, 16, 16 ), new THREE.MeshBasicMaterial( { color: 0xFF0000 } ) );
+			var lightBall = new THREE.Mesh( new THREE.SphereGeometry( 10, 10, 10 ), new THREE.MeshBasicMaterial( { color: 0xFF0000 } ) );
 			light2.position.set(3.0,2.0,0.0);			
 			light2.add(lightBall);
 			scene.add(light2);
@@ -95,7 +115,8 @@
 	                u_light1Col: { type: "v3", value: light1Col},
 	                u_light2Pos: { type: "v3", value: light2.position},
 	                u_light2Col: { type: "v3", value: light2Col},
-	                u_diffuseLight: { type: "v3", value: diffVec}	    
+	                u_diffuseLight: { type: "v3", value: diffVec},
+
             	};
 
             var geometry = new THREE.PlaneGeometry( 200, 200, 200,200 );
@@ -105,8 +126,11 @@
                 fragmentShader: seaFragment,
             } );
 			var sea = new THREE.Mesh( geometry, material );
+
             sea.position.z = -0;	            
 			scene.add( sea );
+        	console.log(camera.position);
+        	console.log(light1.position);
 
 			//landscape
 			luniforms = {
@@ -117,7 +141,10 @@
 	                u_light1Col: { type: "v3", value: light1Col},
 	                u_light2Pos: { type: "v3", value: light2.position},
 	                u_light2Col: { type: "v3", value: light2Col},
-	                u_diffuseLight: { type: "v3", value: diffVec}	 	                					
+	                u_diffuseLight: { type: "v3", value: diffVec},
+	                u_a: {type: "f", value: a_var.a_var},
+	                u_b: {type: "f", value: b_var.b_var}
+
 			};
 
             landgeometry = new THREE.PlaneGeometry( 200, 200, 200,200);
@@ -127,10 +154,11 @@
                 fragmentShader: landFragment,
             } );
 			var land = new THREE.Mesh( landgeometry, landmaterial );
+            land.position.x = 100;
+            land.position.y = 100;			
 			land.rotation.x = Math.PI*3/2;
             land.position.z = -3;	            
 			scene.add( land );
-
 
             container.appendChild( renderer.domElement );
 
@@ -162,12 +190,14 @@
         	//light1.position.set(camera.position.x,camera.position.y,camera.position.z);
         	//light1.position.x = Math.sin(suniforms.u_time.value)*(disp);
         	//light1.position.y = Math.cos(suniforms.u_time.value)*(disp);
+        	console.log(a_var);
         	light2.position.x = Math.cos(suniforms.u_time.value*0.1)*disp;
         	light2.position.z = Math.sin(suniforms.u_time.value*0.1)*disp;
 			cameraControls.update();
             suniforms.u_time.value += 0.05;
             luniforms.u_time.value += 0.05;
-
+            luniforms.u_a.value = a_var.a_var;
+            luniforms.u_b.value = b_var.b_var;
             renderer.render( scene, camera );
         }
     </script>

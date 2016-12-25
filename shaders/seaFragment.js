@@ -117,9 +117,15 @@ float snoise(vec3 v)
         varying vec3 vecNormal;
         varying vec3 vecPos;
         varying vec3 vUv;
+        varying vec3 camP;
+        varying vec3 camN;
 
         void main(void) {
+            //specular
+            vec3 viewDir = normalize(cameraPosition-vecPos);  
+            vec4 alphaV = vec4(1.0, 1.0, 1.0, 0.9); 
 
+            //camstuff
 		    vec3 st = vUv;
             vec3 noise1 = vec3(vUv.x*0.3, vUv.y*0.1, 1.0);
             vec3 noise2  = vec3(vUv.x*0.9, vUv.y*0.3, 1.0);
@@ -128,10 +134,10 @@ float snoise(vec3 v)
             float noise = 0.5 * snoise(noise1);
             noise += 0.25 * snoise(noise2);
         	//colors
-			vec4 basecolor = vec4(0.0, 0.0, 1.0, 1.0);
+			vec4 basecolor = vec4(0.1, 0.2, 0.6, 1.0);
             vec4 tops = vec4(1.0, 1.0, 1.0, 1.0);
 
-            vec4 FinalMix = mix(basecolor, tops, clamp(vecPos.z, 0.0, 1.0));
+            vec4 FinalMix = mix(basecolor, tops, clamp(vecPos.z, 0.0, 1.0)*0.5);
 
 			float ambient = max(0.0, vecNormal.z);
 			float diff = 0.01;
@@ -148,6 +154,6 @@ float snoise(vec3 v)
             addedLights += u_diffuseLight;
 			//PHONG
 			float shininess = 5.0;
-            gl_FragColor=FinalMix*vec4(addedLights,1.0);
+            gl_FragColor=FinalMix*vec4(addedLights,1.0)*alphaV;
         }
 `;   

@@ -107,6 +107,9 @@ float snoise(vec3 v)
 
 //NOT ASHIMA NOISE
         uniform float u_time;
+        uniform float u_a;
+        uniform float u_b;
+
         varying vec3 vUv;
         varying vec3 vecNormal;
         varying vec4 vecPos;
@@ -116,10 +119,10 @@ float snoise(vec3 v)
         	vUv = position;
         	curvePos = vec4(position,1.0);
 
-        	vec3 noiseLand = vec3(vUv.x*0.01, vUv.y*0.01, 1.0);
-        	vec3 noiseSea  = vec3(vUv.x*0.05, vUv.y*0.03, 1.0);
+        	vec3 noiseLand = vec3(exp(vUv.x*u_a)/sin(u_a), exp(vUv.y*u_a), 1.0);
+        	vec3 noiseSea  = vec3(vUv.x*u_b, vUv.y*u_b, 1.0);
 
-        	float noise = 0.5*snoise(noiseLand);
+        	float noise = 0.5*snoise(exp(u_a)*noiseLand);
         	noise += 0.25*snoise(noiseSea);
 
         	curvePos.z = sin(curvePos.x*0.04+300.0+noise)*cos(curvePos.y*0.02+200.0+noise*2.0)*20.0;
