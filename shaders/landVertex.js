@@ -106,6 +106,7 @@ float snoise(vec3 v)
   }
 
 //NOT ASHIMA NOISE
+        uniform float u_time;
         varying vec3 vUv;
         varying vec3 vecNormal;
         varying vec4 vecPos;
@@ -121,7 +122,7 @@ float snoise(vec3 v)
         	float noise = 0.5*snoise(noiseLand);
         	noise += 0.25*snoise(noiseSea);
 
-        	curvePos.z = sin(curvePos.x*0.04+300.0+noise)*20.0;
+        	curvePos.z = sin(curvePos.x*0.04+300.0+noise)*cos(curvePos.y*0.02+200.0+noise*2.0)*20.0;
         	vecPos = projectionMatrix*viewMatrix*curvePos;
             gl_Position = vecPos;
 

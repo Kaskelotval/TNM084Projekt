@@ -192,7 +192,7 @@ float pnoise(vec3 P, vec3 rep)
         	float noise = pnoise(1.0*position+vec3(0.2,0.2,0.8)*0.2*u_time , vec3(100,100,0));
         	vec3 newpos = position + 0.4*noise;
         	float b = 5.0*pnoise(0.05*newpos+vec3(u_time), vec3(1.0));
-        	float displacement = noise*+b;
+        	float displacement = noise+b;
         	vecPos = newpos;
             gl_Position = projectionMatrix*modelViewMatrix*vec4(newpos, 1.0 );
 

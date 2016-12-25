@@ -113,6 +113,7 @@ float snoise(vec3 v)
         uniform vec3 u_light1Col;
         uniform vec3 u_light2Col;
         uniform vec3 u_light2Pos;
+        uniform vec3 u_diffuseLight;
 
         varying vec3 vUv;
         varying vec3 vecNormal;
@@ -125,8 +126,8 @@ float snoise(vec3 v)
             vec3 noise2  = vec3(vUv.x*0.9, vUv.y*0.3, 1.0);
 
 
-            float noise = 0.5 * snoise(noise1);
-            noise += 0.25 * snoise(noise2);
+            float noise = 0.05 * snoise(noise1);
+            noise += 0.025 * snoise(noise2);
 		    vec3 st = vUv;
 
             //colors
@@ -136,21 +137,18 @@ float snoise(vec3 v)
             vec4 grass     = vec4(0.1, 0.3, 0.0, 1.0);
 
             //mix colors
-            vec4 MixColor = mix(grass, darkSand, clamp(noise, 0.0, 1.0));
-            vec4 FinalMix = mix(seaBottom, MixColor, clamp(curvePos.z, 0.0, 20.0)*0.05);
-
-			float diff = 0.01;
-		    vec3 diffuseLight = vec3(diff, diff, diff);
+            vec4 MixColor = mix(grass, darkSand, clamp(curvePos.z, 0.0, 1.0)*0.1);
+            vec4 FinalMix = mix(seaBottom, MixColor, clamp(curvePos.z, 0.0, 500.0)*0.8);
 
             //LIGHTs
 		    vec3 lightDirection = normalize(u_light1Pos-st);
             vec3 addedLights = vec3(0.0,0.0,0.0);
-		    addedLights += clamp(dot(-lightDirection,normalize(vecNormal)), 0.0, 1.0)*u_light1Col;
+		    addedLights += clamp(dot(lightDirection,vecNormal), 0.0, 1.0)*u_light1Col;
 
 		    vec3 lightDirection2 = normalize(u_light2Pos-st);
-		    addedLights += clamp(dot(-lightDirection2,normalize(vecNormal)), 0.0, 1.0)*u_light2Col;
+		    addedLights += clamp(dot(lightDirection2,vecNormal), 0.0, 1.0)*u_light2Col;
 
-            addedLights += diffuseLight;
+            addedLights += u_diffuseLight;
 
 			//PHONG
 			float shininess = 5.0;

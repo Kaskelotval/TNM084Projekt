@@ -47,7 +47,7 @@
         var uniforms, light1, light2, sphere;
         var landMeshRef, seaMeshRef;
         var date = new Date();   
-        var disp = 2;     
+        var disp = 200;     
 
         init();
         animate();
@@ -61,27 +61,30 @@
 
            	scene = new THREE.Scene();
 			camera	= new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 1, 10000 );
-			camera.position.set(0, 0, 5);
+			camera.position.set(0, 0, 200);
 			scene.add(camera);
 			cameraControls	= new THREE.TrackballControls( camera )
 			// transparently support window resize
 
 
 			//Lights
-			// Create light
 			light1 = new THREE.PointLight(0xffffff, 1.0);
-			// We want it to be very close to our character
 			var lightBall = new THREE.Mesh( new THREE.SphereGeometry( 0.3, 16, 16 ), new THREE.MeshBasicMaterial( { color: 0x0000FF } ) );
-			light1.position.set(0.0,0.0,-1.0);
-			light1.add(lightBall);
+			light1.position.set(0.0,0.0,1.0);
+			//light1.add(lightBall);
 			scene.add(light1);
+			var light1Col = new THREE.Vector3(0.2,0.2,0.2);
 
 			light2 = new THREE.PointLight(0xffffff, 1.0);
-
 			var lightBall = new THREE.Mesh( new THREE.SphereGeometry( 0.3, 16, 16 ), new THREE.MeshBasicMaterial( { color: 0xFF0000 } ) );
-			light2.position.set(3.0,0.0,0.0);			
+			light2.position.set(3.0,2.0,0.0);			
 			light2.add(lightBall);
 			scene.add(light2);
+			var light2Col = new THREE.Vector3(0.4,0.2,0.1);
+
+
+			var diff = 0.2;
+			var diffVec = new THREE.Vector3(diff,diff,diff);
 
 			//sea
             suniforms = 	{
@@ -89,19 +92,20 @@
 	                u_resolution: { type: "v2", value: new THREE.Vector2() },
 	                u_mouse: { type: "v2", value: new THREE.Vector2() },
 	                u_light1Pos: { type: "v3", value: light1.position},
-	                u_light1Col: { type: "v3", value: new THREE.Vector3(10,10,10)},
+	                u_light1Col: { type: "v3", value: light1Col},
 	                u_light2Pos: { type: "v3", value: light2.position},
-	                u_light2Col: { type: "v3", value: new THREE.Vector3(1,0,0)}	    
+	                u_light2Col: { type: "v3", value: light2Col},
+	                u_diffuseLight: { type: "v3", value: diffVec}	    
             	};
 
-            var geometry = new THREE.PlaneBufferGeometry( 200, 200, 200 );
+            var geometry = new THREE.PlaneGeometry( 200, 200, 200,200 );
             var material = new THREE.ShaderMaterial( {
                 uniforms: suniforms,
                 vertexShader: seaVertex,
                 fragmentShader: seaFragment,
             } );
 			var sea = new THREE.Mesh( geometry, material );
-            sea.position.z = -4;	            
+            sea.position.z = -0;	            
 			scene.add( sea );
 
 			//landscape
@@ -110,12 +114,13 @@
 	                u_resolution: { type: "v2", value: new THREE.Vector2() },
 	                u_mouse: { type: "v2", value: new THREE.Vector2() },
 	                u_light1Pos: { type: "v3", value: light1.position},
-	                u_light1Col: { type: "v3", value: new THREE.Vector3(10,10,10)},
+	                u_light1Col: { type: "v3", value: light1Col},
 	                u_light2Pos: { type: "v3", value: light2.position},
-	                u_light2Col: { type: "v3", value: new THREE.Vector3(0.7,0.7,0.7)}					
+	                u_light2Col: { type: "v3", value: light2Col},
+	                u_diffuseLight: { type: "v3", value: diffVec}	 	                					
 			};
 
-            landgeometry = new THREE.PlaneGeometry( 200, 200, 100,100);
+            landgeometry = new THREE.PlaneGeometry( 200, 200, 200,200);
             landmaterial = new THREE.ShaderMaterial( {
                 uniforms: luniforms,
                 vertexShader: landVertex,
@@ -154,10 +159,11 @@
 
         function render() {
         	//Move lights
-        	light1.position.x = Math.sin(2*suniforms.u_time.value)*(disp);
-        	light1.position.y = Math.cos(2*suniforms.u_time.value)*(disp);
-        	light2.position.x = Math.cos(suniforms.u_time.value)*disp;
-        	light2.position.z = Math.sin(suniforms.u_time.value)*disp;
+        	//light1.position.set(camera.position.x,camera.position.y,camera.position.z);
+        	//light1.position.x = Math.sin(suniforms.u_time.value)*(disp);
+        	//light1.position.y = Math.cos(suniforms.u_time.value)*(disp);
+        	light2.position.x = Math.cos(suniforms.u_time.value*0.1)*disp;
+        	light2.position.z = Math.sin(suniforms.u_time.value*0.1)*disp;
 			cameraControls.update();
             suniforms.u_time.value += 0.05;
             luniforms.u_time.value += 0.05;
