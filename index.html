@@ -24,12 +24,9 @@
 	<!-- info on screen display -->
 	<div id="info">
 		<div class="top">
-			<a href="http://learningthreejs.com/blog/2011/12/20/boilerplate-for-three-js/" target="_blank">LearningThree.js</a>
-			boiler plate for
-			<a href="https://github.com/mrdoob/three.js/" target="_blank">three.js</a>
+
 		</div>
 		<div class="bottom" id="inlineDoc" >
-			- <i>p</i> for screenshot
 		</div> 
 	</div> 
 
@@ -47,7 +44,7 @@
         var camera, scene, renderer, cameraControls;
         var uniforms, light1, light2, sphere;
         var landMeshRef, seaMeshRef;
-        var a_var;
+        var a_var, b_var, c_var, height_var, speed_var;
         var date = new Date();   
         var disp = 200;     
 
@@ -60,13 +57,18 @@
         function init() {
 
           	//initial values
+          	height_var = {height_var:5.0};
           	a_var = {a_var:0.01};
-          	b_var = {b_var:0.01}
+          	b_var = {b_var:0.01};
+          	c_var = {c_var:0.5};
+          	speed_var = {speed_var:1.0};
           	//GUI
 			var gui = new dat.GUI();
 			gui.add(a_var, 'a_var', 0.001, 0.04);
 			gui.add(b_var, 'b_var', 0.001, 0.04);
-
+			gui.add(c_var, 'c_var', -1.0, 1.0);
+			gui.add(height_var, 'height_var', 0.0, 15.0);
+			gui.add(speed_var, 'speed_var', 0.0, 5.0);
 
 			//RENDERER
           	renderer = new THREE.WebGLRenderer({alpha: true});
@@ -78,10 +80,14 @@
            	scene = new THREE.Scene();
 
 			camera	= new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 1, 10000 );
-			camera.rotation = Math.PI/2;
 
-			camera.position.set(0, 0, 200);
-			cameraControls	= new THREE.TrackballControls( camera, renderer.domElement)			
+
+			camera.position.set(200, 200, 200);
+			camera.up = new THREE.Vector3(0,0,1);
+
+			camera.lookAt(new THREE.Vector3(0,0,0));
+
+			cameraControls	= new THREE.TrackballControls( camera, renderer.domElement)	
 			scene.add(camera);
 
 			// transparently support window resize
@@ -142,8 +148,11 @@
 	                u_light2Pos: { type: "v3", value: light2.position},
 	                u_light2Col: { type: "v3", value: light2Col},
 	                u_diffuseLight: { type: "v3", value: diffVec},
+	                u_height: {type: "f", value: height_var.height_var},
 	                u_a: {type: "f", value: a_var.a_var},
-	                u_b: {type: "f", value: b_var.b_var}
+	                u_b: {type: "f", value: b_var.b_var},
+	                u_c: {type: "f", value: c_var.c_var},
+	                u_speed: {type: "f", value: speed_var.speed_var},
 
 			};
 
@@ -190,14 +199,18 @@
         	//light1.position.set(camera.position.x,camera.position.y,camera.position.z);
         	//light1.position.x = Math.sin(suniforms.u_time.value)*(disp);
         	//light1.position.y = Math.cos(suniforms.u_time.value)*(disp);
-        	console.log(a_var);
         	light2.position.x = Math.cos(suniforms.u_time.value*0.1)*disp;
         	light2.position.z = Math.sin(suniforms.u_time.value*0.1)*disp;
 			cameraControls.update();
             suniforms.u_time.value += 0.05;
             luniforms.u_time.value += 0.05;
+
+            //Update Uniforms
             luniforms.u_a.value = a_var.a_var;
             luniforms.u_b.value = b_var.b_var;
+            luniforms.u_c.value = c_var.c_var;
+            luniforms.u_height.value = height_var.height_var;
+            luniforms.u_speed.value = speed_var.speed_var;
             renderer.render( scene, camera );
         }
     </script>
