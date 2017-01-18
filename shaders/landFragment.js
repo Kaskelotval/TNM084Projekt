@@ -123,8 +123,8 @@ float snoise(vec3 v)
 
         void main(void) {
 
-            vec3 noise1 = vec3(vUv.x*3.0, vUv.y*3.0, 1.0);
-            vec3 noise2  = vec3(vUv.x*3.0, vUv.y*3.0, 1.0);
+            vec3 noise1 = vec3(vUv.x*0.3, vUv.y*0.3, 1.0);
+            vec3 noise2  = vec3(vUv.y*30.0, vUv.x*30.0, 1.0);
 
 
             float noise = 0.05 * snoise(noise1);
@@ -133,25 +133,27 @@ float snoise(vec3 v)
 
             //colors
             vec4 darkSand  = vec4(0.6, 0.5, 0.4, 1.0);
-            vec4 sand      = vec4(0.7, 0.6, 0.5, 1.0)+noise;
+            vec4 sand      = vec4(0.7, 0.6, 0.5, 1.0);
             vec4 seaBottom = (1.0 - noise*2.0)*darkSand + noise*sand;
             vec4 grass     = vec4(0.2, 0.5, 0.2, 1.0);
-            vec4 mountain  = vec4(0.5,0.5,0.6,1.0)*(1.0-noise*2.0);
+            vec4 grass2     = vec4(0.1, 0.3, 0.1, 1.0);
+            vec4 mountain  = vec4(0.3,0.3,0.5,1.0)*(1.0-noise*2.0);
             vec4 mountaintop  = vec4(1.0, 1.0, 1.0, 1.0)*noise;
 
             //mix colors
             vec4 MixColor = mix(darkSand, sand, smoothstep(-10.0, -5.0,curvePos.z));
             MixColor = mix(MixColor, grass, smoothstep(-5.0, 10.0, curvePos.z));
-            MixColor = mix(MixColor, mountain, smoothstep(15.0, 20.0, curvePos.z));
-            vec4 FinalMix  = mix(MixColor, mountaintop, smoothstep(20.0+u_height*2.0, 100.0+u_height, curvePos.z));
+            MixColor = mix(MixColor, grass2, smoothstep(-5.0, 10.0, curvePos.z));
+            MixColor = mix(MixColor, mountain, smoothstep(30.0, 100.0, curvePos.z));
+            vec4 FinalMix  = mix(MixColor, mountaintop, smoothstep(200.0+3.0*u_height, 300.0+2.0*u_height, curvePos.z)*(1.0-2.0*noise));
             
 
             //LIGHTs
-		    vec3 lightDirection = normalize(u_light1Pos-st);
+		    vec3 lightDirection = normalize(u_light1Pos-st-vec3(u_time,0.0,0.0));
             vec3 addedLights = vec3(0.0,0.0,0.0);
 		    addedLights += clamp(dot(lightDirection,vecNormal), 0.0, 1.0)*u_light1Col;
 
-		    vec3 lightDirection2 = normalize(u_light2Pos-st);
+		    vec3 lightDirection2 = normalize(u_light2Pos-st-vec3(u_time,0.0,0.0));
 		    addedLights += clamp(dot(lightDirection2,vecNormal), 0.0, 1.0)*u_light2Col;
 
             addedLights += u_diffuseLight;

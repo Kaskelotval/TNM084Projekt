@@ -44,9 +44,9 @@
         var camera, scene, renderer, cameraControls;
         var uniforms, light1, light2, sphere;
         var landMeshRef, seaMeshRef;
-        var a_var, b_var, c_var, height_var, speed_var;
+        var size_var, a_var, b_var, c_var, height_var, speed_var;
         var date = new Date();   
-        var disp = 200;     
+        var disp = 2000;     
 
         //GUI
 
@@ -57,6 +57,7 @@
         function init() {
 
           	//initial values
+          	size_var = {size_var:5000};
           	height_var = {height_var:5.0};
           	a_var = {a_var:0.01};
           	b_var = {b_var:0.01};
@@ -64,11 +65,12 @@
           	speed_var = {speed_var:1.0};
           	//GUI
 			var gui = new dat.GUI();
+			gui.add(size_var,'size_var',100,10000);
 			gui.add(a_var, 'a_var', 0.001, 0.04);
 			gui.add(b_var, 'b_var', 0.001, 0.04);
 			gui.add(c_var, 'c_var', -1.0, 1.0);
 			gui.add(height_var, 'height_var', 0.0, 15.0);
-			gui.add(speed_var, 'speed_var', 0.0, 5.0);
+			gui.add(speed_var, 'speed_var', 0.0, 50.0);
 
 			//RENDERER
           	renderer = new THREE.WebGLRenderer({alpha: true});
@@ -79,7 +81,7 @@
 
            	scene = new THREE.Scene();
 
-			camera	= new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 1, 10000 );
+			camera	= new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 1, 10000000 );
 
 
 			camera.position.set(200, 200, 200);
@@ -106,10 +108,10 @@
 			light2.position.set(3.0,2.0,0.0);			
 			light2.add(lightBall);
 			scene.add(light2);
-			var light2Col = new THREE.Vector3(0.4,0.2,0.1);
+			var light2Col = new THREE.Vector3(1.0,0.2,0.1);
 
 
-			var diff = 0.2;
+			var diff = 0.5;
 			var diffVec = new THREE.Vector3(diff,diff,diff);
 
 			//sea
@@ -125,12 +127,13 @@
 
             	};
 
-            var geometry = new THREE.PlaneGeometry( 200, 200, 200,200 );
+            var geometry = new THREE.PlaneGeometry( size_var.size_var, size_var.size_var, 400,400 );
             var material = new THREE.ShaderMaterial( {
                 uniforms: suniforms,
                 vertexShader: seaVertex,
                 fragmentShader: seaFragment,
             } );
+            material.transparent = true;
 			var sea = new THREE.Mesh( geometry, material );
 
             sea.position.z = -0;	            
@@ -156,7 +159,7 @@
 
 			};
 
-            landgeometry = new THREE.PlaneGeometry( 200, 200, 200,200);
+            landgeometry = new THREE.PlaneGeometry( size_var.size_var, size_var.size_var, 400,400);
             landmaterial = new THREE.ShaderMaterial( {
                 uniforms: luniforms,
                 vertexShader: landVertex,
@@ -195,15 +198,17 @@
         }
 
         function render() {
-        	//Move lights
+ 			cameraControls.update();
+            suniforms.u_time.value += 0.05*speed_var.speed_var;
+            luniforms.u_time.value += 0.05*speed_var.speed_var;
+               	//Move lights
         	//light1.position.set(camera.position.x,camera.position.y,camera.position.z);
         	//light1.position.x = Math.sin(suniforms.u_time.value)*(disp);
         	//light1.position.y = Math.cos(suniforms.u_time.value)*(disp);
         	light2.position.x = Math.cos(suniforms.u_time.value*0.1)*disp;
-        	light2.position.z = Math.sin(suniforms.u_time.value*0.1)*disp;
-			cameraControls.update();
-            suniforms.u_time.value += 0.05;
-            luniforms.u_time.value += 0.05;
+        	light2.position.y = Math.sin(suniforms.u_time.value*0.1)*disp;
+        	light2.position.z = 100.0;
+
 
             //Update Uniforms
             luniforms.u_a.value = a_var.a_var;

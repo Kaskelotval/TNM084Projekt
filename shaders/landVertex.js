@@ -192,22 +192,28 @@ float pnoise(vec3 P, vec3 rep)
         varying vec4 curvePos;
 
         void main() {
-        	vUv = position - vec3(u_time*u_speed,0.0,0.0);
+        	vUv = position;
         	curvePos = vec4(position,1.0);
 
-        	vec3 noiseLand = vec3(exp(vUv.x*0.05*u_a), exp(vUv.y*0.005*u_b), 1.0);
-        	vec3 noiseSea  = vec3(vUv.x*u_a/2.0, vUv.y*u_b, 1.0);
+        	vec3 noise1 = vec3(exp(vUv.x*0.0005), 100.0+exp(vUv.y*0.0005), 1.0);
+        	vec3 noise2  = vec3(vUv.x*0.2, vUv.y*0.2, 1.0);
 
-        	float noise = cnoise(exp(u_a)*noiseLand);
-        	noise += (u_c/2.0)*cnoise(noiseSea);
+        	float noise = cnoise(exp(20.0*u_a)*noise1);
+          float Anoise = noise- u_c*0.02*cnoise(noise2);
+        	noise += u_c*0.02*cnoise(noise2);
+          float verynoise = 0.4*cnoise(noise2)-cnoise(noise1)*5.0;
 
-        	curvePos.z = noise;
-          highp int max = int(u_height);
-          for(int i = 0 ; i<10 ; i++)
+        	curvePos.z = -5.0;
+          for(int i = 0 ; i<5 ; i++)
           {
-            curvePos.z += u_height*noise;            
-            curvePos.z += (sin(noise))/(0.1+cos(noise));
-            curvePos.z += smoothstep(10.0,20.0,curvePos.z);         
+            curvePos.z += (u_height*sin((noise)));
+            curvePos.z += noise*u_height*smoothstep(u_height,u_height*2.0,curvePos.z);
+            noise += smoothstep(20.0,30.0,curvePos.z)*u_c*0.02*cnoise(noise2);
+            curvePos.z += 2.0*noise*u_height*smoothstep(u_height*2.0,u_height*3.0,curvePos.z);
+            curvePos.z += 3.0*noise*u_height*smoothstep(u_height*3.0,u_height*5.0,curvePos.z);
+            curvePos.z += 10.0*Anoise*u_height*smoothstep(u_height*5.0,u_height*10.0,curvePos.z);
+
+
           }
          
         	
