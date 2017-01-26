@@ -121,7 +121,6 @@ float snoise(vec3 v, out vec3 gradient)
         uniform float u_speed;
 
         varying vec3 vUv;
-        varying vec3 vecNormal;
         varying vec4 vecPos;
         varying vec4 curvePos;
         varying vec3 NewNormal;

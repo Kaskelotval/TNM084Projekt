@@ -154,9 +154,15 @@ float snoise(vec3 v)
             gl_FragColor = FinalMix*vec4(u_ambLight,1.0);
 
             //Land diffuse
-            float diff = max(0.0,dot(normalize(NewNormal), -normalize(u_light1Pos-vecPos.xyz)));
-            diff *= max(0.0,dot(normalize(NewNormal), -normalize(u_light2Pos-vecPos.xyz)));
-            gl_FragColor = mix(diff*gl_FragColor,gl_FragColor,0.92);
+            vec3 addedLights = vec3(0.0,0.0,0.0);            
+            float diff = max(0.0,dot(normalize(NewNormal), normalize(u_light1Pos-vecPos.xyz)));
+            addedLights += diff*u_light1Col;
+            diff += max(0.0,dot(normalize(NewNormal), normalize(u_light2Pos-vecPos.xyz)));
+            addedLights += diff*u_light2Col;
+
+
+
+            gl_FragColor = mix(vec4(addedLights,1.0)*gl_FragColor,gl_FragColor,0.7);
 
 
         /*ye olde Lights
