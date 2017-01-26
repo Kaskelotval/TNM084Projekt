@@ -113,23 +113,27 @@ float snoise(vec3 v)
         uniform vec3 u_light1Col;
         uniform vec3 u_light2Col;
         uniform vec3 u_light2Pos;
-        uniform vec3 u_diffuseLight;
-        uniform float u_height;        
+        uniform vec3 u_ambLight;
+        uniform float u_height;
+        uniform vec3 u_camPos;        
 
         varying vec3 vUv;
         varying vec3 vecNormal;
         varying vec4 vecPos;
         varying vec4 curvePos;
+        varying vec3 NewNormal;
 
         void main(void) {
 
+            //noise input vectors
             vec3 noise1 = vec3(vUv.x*0.3, vUv.y*0.3, 1.0);
             vec3 noise2  = vec3(vUv.y*30.0, vUv.x*30.0, 1.0);
-
-
+            //noise
             float noise = 0.05 * snoise(noise1);
             noise += 0.025 * snoise(noise2);
-		    vec3 st = vUv;
+
+            //coordinate
+		        vec3 st = vUv;
 
             //colors
             vec4 darkSand  = vec4(0.6, 0.5, 0.4, 1.0);
@@ -140,27 +144,33 @@ float snoise(vec3 v)
             vec4 mountain  = vec4(0.3,0.3,0.5,1.0)*(1.0-noise*2.0);
             vec4 mountaintop  = vec4(1.0, 1.0, 1.0, 1.0)*noise;
 
-            //mix colors
+        //mix colors
             vec4 MixColor = mix(darkSand, sand, smoothstep(-10.0, -5.0,curvePos.z));
             MixColor = mix(MixColor, grass, smoothstep(-5.0, 10.0, curvePos.z));
             MixColor = mix(MixColor, grass2, smoothstep(-5.0, 10.0, curvePos.z));
             MixColor = mix(MixColor, mountain, smoothstep(30.0, 100.0, curvePos.z));
-            vec4 FinalMix  = mix(MixColor, mountaintop, smoothstep(200.0+3.0*u_height, 300.0+2.0*u_height, curvePos.z)*(1.0-2.0*noise));
+            vec4 FinalMix  = mix(MixColor, mountaintop, smoothstep(200.0+30.0*u_height, 500.0+30.0*u_height, curvePos.z)*(1.0-2.0*noise));
             
+            gl_FragColor = FinalMix*vec4(u_ambLight,1.0);
 
-            //LIGHTs
-		    vec3 lightDirection = normalize(u_light1Pos-st-vec3(u_time,0.0,0.0));
+            //Land diffuse
+            float diff = max(0.0,dot(normalize(NewNormal), -normalize(u_light1Pos-vecPos.xyz)));
+            diff *= max(0.0,dot(normalize(NewNormal), -normalize(u_light2Pos-vecPos.xyz)));
+            gl_FragColor = mix(diff*gl_FragColor,gl_FragColor,0.92);
+
+
+        /*ye olde Lights
             vec3 addedLights = vec3(0.0,0.0,0.0);
-		    addedLights += clamp(dot(lightDirection,vecNormal), 0.0, 1.0)*u_light1Col;
 
-		    vec3 lightDirection2 = normalize(u_light2Pos-st-vec3(u_time,0.0,0.0));
-		    addedLights += clamp(dot(lightDirection2,vecNormal), 0.0, 1.0)*u_light2Col;
+		        vec3 lightDirection = normalize(u_light1Pos-vecPos.xyz); 
+		        addedLights += clamp(dot(lightDirection,normalize(NewNormal)), 0.0, 1.0)*u_light1Col;
+
+		        vec3 lightDirection2 = normalize(u_light2Pos-vecPos.xyz);
+		        addedLights += clamp(dot(lightDirection2,normalize(NewNormal)), 0.0, 1.0)*u_light2Col;
 
             addedLights += u_diffuseLight;
+        */
 
-			//PHONG
-			float shininess = 5.0;
-            //FinalMix = dot(FinalMix,vec4(addedLights,1.0));
-            gl_FragColor = FinalMix*vec4(addedLights,1.0);
+
         }
 `;   

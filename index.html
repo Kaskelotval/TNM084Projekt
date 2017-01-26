@@ -44,7 +44,7 @@
         var camera, scene, renderer, cameraControls;
         var uniforms, light1, light2, sphere;
         var landMeshRef, seaMeshRef;
-        var size_var, a_var, b_var, c_var, height_var, speed_var;
+        var size_var, a_var, b_var, c_var, height_var, speed_var, sun_placement;
         var date = new Date();   
         var disp = 2000;     
 
@@ -63,6 +63,7 @@
           	b_var = {b_var:0.01};
           	c_var = {c_var:0.5};
           	speed_var = {speed_var:1.0};
+          	sun_placement = {sun_placement:0.0};
           	//GUI
 			var gui = new dat.GUI();
 			gui.add(size_var,'size_var',100,10000);
@@ -71,6 +72,7 @@
 			gui.add(c_var, 'c_var', -1.0, 1.0);
 			gui.add(height_var, 'height_var', 0.0, 15.0);
 			gui.add(speed_var, 'speed_var', 0.0, 50.0);
+			gui.add(sun_placement,'sun_placement',-1.0,1.0);
 
 			//RENDERER
           	renderer = new THREE.WebGLRenderer({alpha: true});
@@ -97,22 +99,22 @@
 
 			//Lights
 			light1 = new THREE.PointLight(0xffffff, 1.0);
-			var lightBall = new THREE.Mesh( new THREE.SphereGeometry( 0.3, 16, 16 ), new THREE.MeshBasicMaterial( { color: 0x0000FF } ) );
+			var lightBall = new THREE.Mesh( new THREE.SphereGeometry( 300, 16, 16 ), new THREE.MeshBasicMaterial( { color: 0xFF0000 } ) );
 			light1.position.set(0.0,0.0,1.0);
 			//light1.add(lightBall);
 			scene.add(light1);
-			var light1Col = new THREE.Vector3(0.2,0.2,0.2);
+			var light1Col = new THREE.Vector3(0.8,0.7,0.2);
 
 			light2 = new THREE.PointLight(0xffffff, 1.0);
 			var lightBall = new THREE.Mesh( new THREE.SphereGeometry( 10, 10, 10 ), new THREE.MeshBasicMaterial( { color: 0xFF0000 } ) );
 			light2.position.set(3.0,2.0,0.0);			
 			light2.add(lightBall);
 			scene.add(light2);
-			var light2Col = new THREE.Vector3(1.0,0.2,0.1);
+			var light2Col = new THREE.Vector3(10.0,0.2,0.2);
 
 
-			var diff = 0.5;
-			var diffVec = new THREE.Vector3(diff,diff,diff);
+			var amb = 0.5;
+			var ambVec = new THREE.Vector3(amb,amb,amb);
 
 			//sea
             suniforms = 	{
@@ -123,7 +125,7 @@
 	                u_light1Col: { type: "v3", value: light1Col},
 	                u_light2Pos: { type: "v3", value: light2.position},
 	                u_light2Col: { type: "v3", value: light2Col},
-	                u_diffuseLight: { type: "v3", value: diffVec},
+	                u_ambLight: { type: "v3", value: ambVec},
 
             	};
 
@@ -150,12 +152,13 @@
 	                u_light1Col: { type: "v3", value: light1Col},
 	                u_light2Pos: { type: "v3", value: light2.position},
 	                u_light2Col: { type: "v3", value: light2Col},
-	                u_diffuseLight: { type: "v3", value: diffVec},
+	                u_ambLight: { type: "v3", value: ambVec},
 	                u_height: {type: "f", value: height_var.height_var},
 	                u_a: {type: "f", value: a_var.a_var},
 	                u_b: {type: "f", value: b_var.b_var},
 	                u_c: {type: "f", value: c_var.c_var},
 	                u_speed: {type: "f", value: speed_var.speed_var},
+	                u_camPos: {type: "v3", value: camera.position},
 
 			};
 
@@ -203,11 +206,14 @@
             luniforms.u_time.value += 0.05*speed_var.speed_var;
                	//Move lights
         	//light1.position.set(camera.position.x,camera.position.y,camera.position.z);
-        	//light1.position.x = Math.sin(suniforms.u_time.value)*(disp);
-        	//light1.position.y = Math.cos(suniforms.u_time.value)*(disp);
+        	light1.position.x = Math.sin(Math.PI*sun_placement.sun_placement)*(disp);
+        	light1.position.z = Math.cos(Math.PI*sun_placement.sun_placement)*(disp);
+        	console.log(light1.position);
         	light2.position.x = Math.cos(suniforms.u_time.value*0.1)*disp;
         	light2.position.y = Math.sin(suniforms.u_time.value*0.1)*disp;
         	light2.position.z = 100.0;
+
+
 
 
             //Update Uniforms

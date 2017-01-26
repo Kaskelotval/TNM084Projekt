@@ -112,7 +112,7 @@ float snoise(vec3 v)
         uniform vec3 u_light1Col;
         uniform vec3 u_light2Col;
         uniform vec3 u_light2Pos;
-        uniform vec3 u_diffuseLight;
+        uniform vec3 u_ambLight;
 
         varying vec3 vecNormal;
         varying vec3 vecPos;
@@ -122,38 +122,33 @@ float snoise(vec3 v)
 
         void main(void) {
             //specular
-            vec3 viewDir = normalize(cameraPosition-vecPos);  
-            vec4 alphaV = vec4(1.0, 1.0, 1.0, 0.5); 
+           vec3 viewDir = normalize(cameraPosition-vecPos);  
+           vec4 alphaV = vec4(1.0, 1.0, 1.0, 0.5); 
 
             //camstuff
-		    vec3 st = vUv;
-            vec3 noise1 = vec3(exp(vUv.x)*0.03, exp(vUv.y)*0.03, 1.0);
-            vec3 noise2  = vec3(vUv.y*30.0, vUv.y*30.0, 1.0);
+		       vec3 st = vUv;
+           vec3 noise1 = vec3(exp(vUv.x)*0.03, exp(vUv.y)*0.03, 1.0);
+           vec3 noise2  = vec3(vUv.y*30.0, vUv.y*30.0, 1.0);
 
 
-            float noise = 0.5 * snoise(noise1);
-            noise += 0.25 * snoise(noise2);
+           float noise = 0.5 * snoise(noise1);
+           noise += 0.25 * snoise(noise2);
         	//colors
-			vec4 basecolor = vec4(0.1, 0.2, 0.6, 1.0);
-            vec4 tops = vec4(1.0, 1.0, 1.0, 1.0);
+			     vec4 basecolor = vec4(0.1, 0.2, 0.6, 1.0);
+           vec4 tops = vec4(1.0, 1.0, 1.0, 1.0);
 
-            vec4 FinalMix = mix(basecolor, tops, clamp(vecPos.z, 0.0, 1.0)*0.5);
-
-			float ambient = max(0.0, vecNormal.z);
-			float diff = 0.01;
+           vec4 FinalMix = mix(basecolor, tops, clamp(vecPos.z, 0.0, 1.0)*0.5);
 
             //LIGHTs
-		    vec3 lightDirection = normalize(u_light1Pos-vecPos);
-			//float diff = max(0.0,lightDirection.y);
-            vec3 addedLights = vec3(0.0,0.0,0.0);
-		    addedLights += clamp(dot(lightDirection,normalize(vecNormal)), 0.0, 1.0)*u_light1Col;
+                        vec3 addedLights = vec3(0.0,0.0,0.0);
 
-		    vec3 lightDirection2 = normalize(u_light2Pos-vecPos);
-		    addedLights += clamp(dot(lightDirection2,normalize(vecNormal)), 0.0, 1.0)*u_light2Col;
+      		  vec3 lightDirection = normalize(u_light1Pos-vecPos);
+      		  addedLights += clamp(dot(lightDirection,normalize(vecNormal)), 0.0, 1.0)*u_light1Col;
 
-            addedLights += u_diffuseLight;
-			//PHONG
-			float shininess = 5.0;
+      		  vec3 lightDirection2 = normalize(u_light2Pos-vecPos);
+      		  addedLights += clamp(dot(lightDirection2,normalize(vecNormal)), 0.0, 1.0)*u_light2Col;
+
+            addedLights += u_ambLight;
             gl_FragColor=FinalMix*vec4(addedLights,1.0)*alphaV;
         }
 `;   
