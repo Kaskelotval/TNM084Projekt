@@ -148,19 +148,17 @@ float snoise(vec3 v)
             vec4 MixColor = mix(darkSand, sand, smoothstep(-10.0, -5.0,curvePos.z));
             MixColor = mix(MixColor, grass, smoothstep(-5.0, 10.0, curvePos.z));
             MixColor = mix(MixColor, grass2, smoothstep(-5.0, 10.0, curvePos.z));
-            MixColor = mix(MixColor, mountain, smoothstep(30.0, 100.0, curvePos.z));
-            vec4 FinalMix  = mix(MixColor, mountaintop, smoothstep(200.0+30.0*u_height, 500.0+30.0*u_height, curvePos.z)*(1.0-2.0*noise));
+            MixColor = mix(MixColor, mountain, smoothstep(30.0, 100.0, curvePos.z*(1.0-2.0*noise)));
+            vec4 FinalMix  = mix(MixColor, mountaintop, smoothstep(200.0+30.0*u_height, 500.0+30.0*u_height, curvePos.z*(1.0-2.0*noise)));
             
             gl_FragColor = FinalMix*vec4(u_ambLight,1.0);
 
-            //Land diffuse
+            //diffuse
             vec3 addedLights = vec3(0.0,0.0,0.0);            
             float diff = max(0.0,dot(normalize(NewNormal), normalize(u_light1Pos-vecPos.xyz)));
             addedLights += diff*u_light1Col;
             diff += max(0.0,dot(normalize(NewNormal), normalize(u_light2Pos-vecPos.xyz)));
             addedLights += diff*u_light2Col;
-
-
 
             gl_FragColor = mix(vec4(addedLights,1.0)*gl_FragColor,gl_FragColor,0.7);
 

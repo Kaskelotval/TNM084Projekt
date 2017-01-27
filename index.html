@@ -68,7 +68,7 @@
 			var gui = new dat.GUI();
 			gui.add(size_var,'size_var',100,10000);
 			gui.add(a_var, 'a_var', 0.001, 0.04);
-			gui.add(b_var, 'b_var', 0.001, 0.04);
+			gui.add(b_var, 'b_var', 0.0, 1.0);
 			gui.add(c_var, 'c_var', -1.0, 1.0);
 			gui.add(height_var, 'height_var', 0.0, 15.0);
 			gui.add(speed_var, 'speed_var', 0.0, 50.0);
@@ -86,7 +86,7 @@
 			camera	= new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 1, 10000000 );
 
 
-			camera.position.set(200, 200, 200);
+			camera.position.set(2000, 2000, 2000);
 			camera.up = new THREE.Vector3(0,0,1);
 
 			camera.lookAt(new THREE.Vector3(0,0,0));

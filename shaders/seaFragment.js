@@ -123,32 +123,30 @@ float snoise(vec3 v)
         void main(void) {
             //specular
            vec3 viewDir = normalize(cameraPosition-vecPos);  
-           vec4 alphaV = vec4(1.0, 1.0, 1.0, 0.5); 
+           vec4 alphaV = vec4(1.0, 1.0, 1.0, 0.9); 
 
             //camstuff
 		       vec3 st = vUv;
-           vec3 noise1 = vec3(exp(vUv.x)*0.03, exp(vUv.y)*0.03, 1.0);
-           vec3 noise2  = vec3(vUv.y*30.0, vUv.y*30.0, 1.0);
+           vec3 noise1 = vec3((vUv.x)*0.03, (vUv.y)*0.03, 1.0);
+           vec3 noise2  = vec3(vUv.y*3.0, vUv.y*3.0, 1.0);
 
 
            float noise = 0.5 * snoise(noise1);
            noise += 0.25 * snoise(noise2);
         	//colors
-			     vec4 basecolor = vec4(0.1, 0.2, 0.6, 1.0);
-           vec4 tops = vec4(1.0, 1.0, 1.0, 1.0);
+			     vec4 basecolor = vec4(0.1, 0.2, 0.4, 1.0);
+           vec4 tops = vec4(0.4, 0.4, 0.4, 1.0);
 
-           vec4 FinalMix = mix(basecolor, tops, clamp(vecPos.z, 0.0, 1.0)*0.5);
+           gl_FragColor = mix(basecolor, tops, smoothstep(0.0, 10.0,vecPos.z));
 
             //LIGHTs
-                        vec3 addedLights = vec3(0.0,0.0,0.0);
+            //diffuse
+            vec3 addedLights = vec3(0.0,0.0,0.0);            
+            float diff = max(0.0,dot(normalize(vecNormal), normalize(u_light1Pos-vecPos.xyz)));
+            addedLights += diff*u_light1Col;
+            diff += max(0.0,dot(normalize(vecNormal), normalize(u_light2Pos-vecPos.xyz)));
+            addedLights += diff*u_light2Col;
 
-      		  vec3 lightDirection = normalize(u_light1Pos-vecPos);
-      		  addedLights += clamp(dot(lightDirection,normalize(vecNormal)), 0.0, 1.0)*u_light1Col;
-
-      		  vec3 lightDirection2 = normalize(u_light2Pos-vecPos);
-      		  addedLights += clamp(dot(lightDirection2,normalize(vecNormal)), 0.0, 1.0)*u_light2Col;
-
-            addedLights += u_ambLight;
-            gl_FragColor=FinalMix*vec4(addedLights,1.0)*alphaV;
+            gl_FragColor = mix(vec4(addedLights,1.0)*gl_FragColor,gl_FragColor,0.7)*alphaV;
         }
 `;   
