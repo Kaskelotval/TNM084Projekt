@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 	<head>
-		<title>learningthree.js boiler plate for three.js</title>
+		<title>PROJEKT</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		
@@ -44,7 +44,7 @@
         var camera, scene, renderer, cameraControls;
         var uniforms, light1, light2, sphere;
         var landMeshRef, seaMeshRef;
-        var size_var, a_var, b_var, c_var, height_var, speed_var, sun_placement;
+        var nx, ny, size_var, a_var, b_var, c_var, height_var, speed_var, sun_placement;
         var date = new Date();   
         var disp = 2000;     
 
@@ -64,15 +64,21 @@
           	c_var = {c_var:0.5};
           	speed_var = {speed_var:1.0};
           	sun_placement = {sun_placement:0.0};
+          	nx = {nx:0.0};
+          	ny = {ny:0.0};
+
           	//GUI
 			var gui = new dat.GUI();
 			gui.add(size_var,'size_var',100,10000);
 			gui.add(a_var, 'a_var', 0.001, 0.04);
 			gui.add(b_var, 'b_var', 0.0, 1.0);
 			gui.add(c_var, 'c_var', -1.0, 1.0);
-			gui.add(height_var, 'height_var', 0.0, 15.0);
+			gui.add(height_var, 'height_var', 0.0, 30.0);
 			gui.add(speed_var, 'speed_var', 0.0, 50.0);
 			gui.add(sun_placement,'sun_placement',-0.5,0.5);
+			gui.add(nx,'nx',-100.0,100.0);
+			gui.add(ny,'ny',-100.0,100.0);
+
 
 			//RENDERER
           	renderer = new THREE.WebGLRenderer({alpha: true});
@@ -159,6 +165,8 @@
 	                u_c: {type: "f", value: c_var.c_var},
 	                u_speed: {type: "f", value: speed_var.speed_var},
 	                u_camPos: {type: "v3", value: camera.position},
+	                u_nx: {type: "f", value: nx.nx},
+	                u_ny: {type: "f", value: ny.ny},
 
 			};
 
@@ -221,6 +229,8 @@
             luniforms.u_c.value = c_var.c_var;
             luniforms.u_height.value = height_var.height_var;
             luniforms.u_speed.value = speed_var.speed_var;
+            luniforms.u_nx.value = nx.nx;
+            luniforms.u_ny.value = ny.ny;
             renderer.render( scene, camera );
         }
     </script>

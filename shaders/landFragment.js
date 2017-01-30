@@ -136,28 +136,28 @@ float snoise(vec3 v)
 		        vec3 st = vUv;
 
             //colors
-            vec4 darkSand  = vec4(0.6, 0.5, 0.4, 1.0);
+            vec4 darkSand  = vec4(0.2, 0.1, 0.1, 1.0);
             vec4 sand      = vec4(0.7, 0.6, 0.5, 1.0);
             vec4 seaBottom = (1.0 - noise*2.0)*darkSand + noise*sand;
             vec4 grass     = vec4(0.2, 0.5, 0.2, 1.0);
             vec4 grass2     = vec4(0.1, 0.3, 0.1, 1.0);
-            vec4 mountain  = vec4(0.3,0.3,0.5,1.0)*(1.0-noise*2.0);
-            vec4 mountaintop  = vec4(1.0, 1.0, 1.0, 1.0)*noise;
+            vec4 mountain  = vec4(0.3,0.3,0.5,1.0)*(1.0-noise*1.0);
+            vec4 mountaintop  = vec4(0.8, 0.8, 1.0, 1.0)*noise;
 
         //mix colors
             vec4 MixColor = mix(darkSand, sand, smoothstep(-10.0, -5.0,curvePos.z));
-            MixColor = mix(MixColor, grass, smoothstep(-5.0, 10.0, curvePos.z));
-            MixColor = mix(MixColor, grass2, smoothstep(-5.0, 10.0, curvePos.z));
-            MixColor = mix(MixColor, mountain, smoothstep(30.0, 100.0, curvePos.z*(1.0-2.0*noise)));
+            MixColor = mix(MixColor, grass, smoothstep(20.0, 40.0, curvePos.z));
+            MixColor = mix(MixColor, grass2, smoothstep(10.0, 40.0, curvePos.z));
+            MixColor = mix(MixColor, mountain, smoothstep(0.0, 1.0, abs(NewNormal.z)));
             vec4 FinalMix  = mix(MixColor, mountaintop, smoothstep(200.0+30.0*u_height, 500.0+30.0*u_height, curvePos.z*(1.0-2.0*noise)));
             
             gl_FragColor = FinalMix*vec4(u_ambLight,1.0);
 
             //diffuse
             vec3 addedLights = vec3(0.0,0.0,0.0);            
-            float diff = max(0.0,dot(normalize(NewNormal), normalize(u_light1Pos-vecPos.xyz)));
+            float diff = 0.4*max(0.0,dot(normalize(NewNormal), normalize(u_light1Pos-vecPos.xyz)));
             addedLights += diff*u_light1Col;
-            diff += max(0.0,dot(normalize(NewNormal), normalize(u_light2Pos-vecPos.xyz)));
+            diff += 0.4*max(0.0,dot(normalize(NewNormal), normalize(u_light2Pos-vecPos.xyz)));
             addedLights += diff*u_light2Col;
 
             gl_FragColor = mix(vec4(addedLights,1.0)*gl_FragColor,gl_FragColor,0.7);

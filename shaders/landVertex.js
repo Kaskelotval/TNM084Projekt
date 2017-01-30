@@ -119,6 +119,8 @@ float snoise(vec3 v, out vec3 gradient)
         uniform float u_b;
         uniform float u_c;
         uniform float u_speed;
+        uniform float u_nx;
+        uniform float u_ny;
 
         varying vec3 vUv;
         varying vec4 vecPos;
@@ -129,34 +131,32 @@ float snoise(vec3 v, out vec3 gradient)
         	vUv = position;
         	curvePos = vec4(position,1.0);
 
-        	vec3 noise1 = vec3(10.0+(vUv.x*0.005), 10.0+(vUv.y*0.005), 1.0);
+        	vec3 noise1 = vec3((u_nx+vUv.x*0.005), u_ny+(vUv.y*0.005), 1.0);
         	vec3 noise2  = vec3(vUv.x*20.0, vUv.y*20.0, 1.0);
 
-          vec3 grad;
+          vec3 grad = vec3(0.0);
           vec3 grad2;
           vec3 temp;
           vec3 temp2;
           vec3 temp3;
-        	float noise = snoise(10.0*u_a*noise1,temp);
+        	float noise = snoise(10.0*noise1,temp)*u_a;
           float Anoise = noise - u_b*100.0*snoise(0.05*noise2,temp2);
         	noise += u_b*snoise(noise2,temp3);
           //starting at the bottom
-        	curvePos.z = -0.0;
+        	curvePos.z = 10.0;
 
           for(float i = 0.0 ; i<10.0 ; i += 1.0)
           {
             float fact = exp(i);
-            curvePos.z += u_height*(1.0/(fact*u_b))*snoise(fact*u_a*noise1,temp)- (0.5/(fact*u_b))
+            curvePos.z += u_height*(1.0/(fact*0.01))*snoise(fact*u_a*noise1,temp)- (0.5/(fact*0.01))
                           + 0.5*snoise(0.005*noise2,temp3);
+            grad += u_height*temp+0.5*temp3;                          
           }
           //now we here.
 
-          grad = temp+temp3;
-          grad2 = temp+temp2;
-
           vec3 gradP = dot(grad,normalize(normal))*normalize(normal);
           vec3 gradT = grad - gradP;
-          NewNormal = normalize(normal-gradT);        	
+          NewNormal = mat3(projectionMatrix)*normalize(normal-gradT);        	
           vecPos = projectionMatrix*curvePos;
           gl_Position = projectionMatrix*viewMatrix*curvePos;
 

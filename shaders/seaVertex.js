@@ -133,8 +133,7 @@ float snoise(vec3 v, out vec3 gradient)
 
           for(int i = 0 ; i<10 ; i++)
           {
-            newpos.z += exp(2.0*noise);
-            newpos.z += noise*smoothstep(20.0,200.0,newpos.z);
+            newpos.z += noise*sin(u_time)  ;
           }
           
         	float b = 0.005*snoise(0.005*newpos+vec3(0.289*u_time), temp2);
