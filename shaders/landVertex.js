@@ -126,6 +126,7 @@ float snoise(vec3 v, out vec3 gradient)
         varying vec4 vecPos;
         varying vec4 curvePos;
         varying vec3 NewNormal;
+        varying vec3 grad;
 
         void main() {
         	vUv = position;
@@ -134,7 +135,6 @@ float snoise(vec3 v, out vec3 gradient)
         	vec3 noise1 = vec3((u_nx+vUv.x*0.005), u_ny+(vUv.y*0.005), 1.0);
         	vec3 noise2  = vec3(vUv.x*20.0, vUv.y*20.0, 1.0);
 
-          vec3 grad = vec3(0.0);
           vec3 grad2;
           vec3 temp;
           vec3 temp2;
@@ -145,10 +145,12 @@ float snoise(vec3 v, out vec3 gradient)
           //starting at the bottom
         	curvePos.z = 10.0;
 
+          grad = vec3(0.0);
+
           for(float i = 0.0 ; i<10.0 ; i += 1.0)
           {
             float fact = exp(i);
-            curvePos.z += u_height*(1.0/(fact*0.01))*snoise(fact*u_a*noise1,temp)- (0.5/(fact*0.01))
+            curvePos.z += u_height*(2.0/(fact*0.01))*snoise(fact*u_a*noise1,temp)- (0.5/(fact*0.01))
                           + 0.5*snoise(0.005*noise2,temp3);
             grad += u_height*temp+0.5*temp3;                          
           }

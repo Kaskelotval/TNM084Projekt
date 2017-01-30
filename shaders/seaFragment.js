@@ -127,7 +127,7 @@ float snoise(vec3 v)
 
             //camstuff
 		       vec3 st = vUv;
-           vec3 noise1 = vec3((vUv.x)*0.003, (vUv.y)*0.003, 1.0);
+           vec3 noise1 = vec3((vUv.x), (vUv.y), 1.0);
            vec3 noise2  = vec3(vUv.x*30.0, vUv.y*30.0, 1.0);
 
 
@@ -135,9 +135,9 @@ float snoise(vec3 v)
            noise += 0.25 * snoise(noise2);
         	//colors
 			     vec4 basecolor = vec4(0.1, 0.2, 0.3, 1.0);
-           vec4 tops = vec4(0.4, 0.4, 0.4, 1.0);
+           vec4 tops = vec4(0.6, 0.6, 0.6, 1.0);
 
-           gl_FragColor = mix(basecolor, tops, smoothstep(0.0, 10.0,vecPos.z));
+           gl_FragColor = mix(basecolor, tops, smoothstep(0.0, 5.0,vecPos.z));
 
             //LIGHTs
             //diffuse

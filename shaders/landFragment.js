@@ -122,9 +122,10 @@ float snoise(vec3 v)
         varying vec4 vecPos;
         varying vec4 curvePos;
         varying vec3 NewNormal;
+        varying vec3 grad;
 
         void main(void) {
-
+            vec3 slope = normalize(grad);
             //noise input vectors
             vec3 noise1 = vec3(vUv.x*0.3, vUv.y*0.3, 1.0);
             vec3 noise2  = vec3(vUv.y*30.0, vUv.x*30.0, 1.0);
@@ -148,7 +149,9 @@ float snoise(vec3 v)
             vec4 MixColor = mix(darkSand, sand, smoothstep(-10.0, -5.0,curvePos.z));
             MixColor = mix(MixColor, grass, smoothstep(20.0, 40.0, curvePos.z));
             MixColor = mix(MixColor, grass2, smoothstep(10.0, 40.0, curvePos.z));
-            MixColor = mix(MixColor, mountain, smoothstep(0.0, 1.0, abs(NewNormal.z)));
+            MixColor = mix(MixColor, mountain, smoothstep(0.8,0.9,abs(slope.x)*(1.0-2.0*noise)));
+            MixColor = mix(MixColor, mountain, smoothstep(0.8,0.9,abs(slope.y)*(1.0-2.0*noise)));
+            MixColor = mix(MixColor, mountain, smoothstep(60.0+30.0*u_height,200.0+30.0*u_height,curvePos.z));
             vec4 FinalMix  = mix(MixColor, mountaintop, smoothstep(200.0+30.0*u_height, 500.0+30.0*u_height, curvePos.z*(1.0-2.0*noise)));
             
             gl_FragColor = FinalMix*vec4(u_ambLight,1.0);

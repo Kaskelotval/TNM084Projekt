@@ -122,7 +122,7 @@ float snoise(vec3 v, out vec3 gradient)
 
         void main() {
           //camera normal
-          float a = 0.0005;
+          float a = 0.00005;
           vUv = position;
           vec3 grad;
           vec3 temp, temp2;
