@@ -127,39 +127,39 @@ float snoise(vec3 v, out vec3 gradient)
         varying vec4 curvePos;
         varying vec3 NewNormal;
         varying vec3 grad;
+        varying vec3 gradP;
 
         void main() {
         	vUv = position;
         	curvePos = vec4(position,1.0);
 
-        	vec3 noise1 = vec3((u_nx+vUv.x*0.005), u_ny+(vUv.y*0.005), 1.0);
-        	vec3 noise2  = vec3(vUv.x*20.0, vUv.y*20.0, 1.0);
+        	vec3 noise1 = vec3(u_nx+vUv.x*0.005, u_ny+vUv.y*0.005, 1.0);
+        	vec3 noise2  = vec3(vUv.x*200.0, vUv.y*200.0, 1.0);
 
-          vec3 grad2;
           vec3 temp;
           vec3 temp2;
           vec3 temp3;
-        	float noise = snoise(10.0*noise1,temp)*u_a;
-          float Anoise = noise - u_b*100.0*snoise(0.05*noise2,temp2);
-        	noise += u_b*snoise(noise2,temp3);
           //starting at the bottom
         	curvePos.z = 10.0;
 
-          grad = vec3(0.0);
+          vec3 grad1 = vec3(0.0);
+          vec3 grad2 = vec3(0.0);
 
           for(float i = 0.0 ; i<10.0 ; i += 1.0)
           {
             float fact = exp(i);
-            curvePos.z += u_height*(2.0/(fact*0.01))*snoise(fact*u_a*noise1,temp)- (0.5/(fact*0.01))
-                          + 0.5*snoise(0.005*noise2,temp3);
-            grad += u_height*temp+0.5*temp3;                          
+            curvePos.z += u_height*(u_b/(fact*0.01))*snoise(fact*u_a*noise1,temp); //behövs denna sista grej?
+                          
+            grad1 += temp;
+            grad2 += temp3;                          
           }
+          grad = u_a*grad1;
           //now we here.
 
-          vec3 gradP = dot(grad,normalize(normal))*normalize(normal);
+          gradP = dot(grad,normalize(normal))*normalize(normal);
           vec3 gradT = grad - gradP;
           NewNormal = mat3(projectionMatrix)*normalize(normal-gradT);        	
-          vecPos = projectionMatrix*curvePos;
+          vecPos = projectionMatrix*curvePos; //Gör denna något??
           gl_Position = projectionMatrix*viewMatrix*curvePos;
 
         	

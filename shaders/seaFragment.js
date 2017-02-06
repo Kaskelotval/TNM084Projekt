@@ -141,12 +141,14 @@ float snoise(vec3 v)
 
             //LIGHTs
             //diffuse
-            vec3 addedLights = vec3(0.0,0.0,0.0);            
+
+            vec3 addedLights = u_ambLight;            
             float diff = max(0.0,dot(normalize(vecNormal), normalize(u_light1Pos-vecPos.xyz)));
             addedLights += diff*u_light1Col;
             diff += max(0.0,dot(normalize(vecNormal), normalize(u_light2Pos-vecPos.xyz)));
             addedLights += diff*u_light2Col;
-
+            //specular
+            
             gl_FragColor = mix(vec4(addedLights,1.0)*gl_FragColor,gl_FragColor,0.7)*alphaV;
         }
 `;   

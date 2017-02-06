@@ -123,9 +123,11 @@ float snoise(vec3 v)
         varying vec4 curvePos;
         varying vec3 NewNormal;
         varying vec3 grad;
+        varying vec3 gradP;
+
 
         void main(void) {
-            vec3 slope = normalize(grad);
+            float slope = dot(normalize(gradP), vec3(0.0,0.0,1.0));
             //noise input vectors
             vec3 noise1 = vec3(vUv.x*0.3, vUv.y*0.3, 1.0);
             vec3 noise2  = vec3(vUv.y*30.0, vUv.x*30.0, 1.0);
@@ -141,43 +143,32 @@ float snoise(vec3 v)
             vec4 sand      = vec4(0.7, 0.6, 0.5, 1.0);
             vec4 seaBottom = (1.0 - noise*2.0)*darkSand + noise*sand;
             vec4 grass     = vec4(0.2, 0.5, 0.2, 1.0);
-            vec4 grass2     = vec4(0.1, 0.3, 0.1, 1.0);
-            vec4 mountain  = vec4(0.3,0.3,0.5,1.0)*(1.0-noise*1.0);
+            vec4 grass2     = vec4(0.2, 0.4, 0.2, 1.0);
+            vec4 mountain  = vec4(0.3,0.3,0.5,1.0)*(1.0-noise*2.0);
             vec4 mountaintop  = vec4(0.8, 0.8, 1.0, 1.0)*noise;
 
         //mix colors
             vec4 MixColor = mix(darkSand, sand, smoothstep(-10.0, -5.0,curvePos.z));
             MixColor = mix(MixColor, grass, smoothstep(20.0, 40.0, curvePos.z));
-            MixColor = mix(MixColor, grass2, smoothstep(10.0, 40.0, curvePos.z));
-            MixColor = mix(MixColor, mountain, smoothstep(0.8,0.9,abs(slope.x)*(1.0-2.0*noise)));
-            MixColor = mix(MixColor, mountain, smoothstep(0.8,0.9,abs(slope.y)*(1.0-2.0*noise)));
+            MixColor = mix(MixColor, grass2, smoothstep(40.0, 60.0, curvePos.z));
+            MixColor = mix(MixColor, mountain, smoothstep(40.0+30.0*u_height,70.0+30.0*u_height,curvePos.z*(1.0-2.0*noise)));
             MixColor = mix(MixColor, mountain, smoothstep(60.0+30.0*u_height,200.0+30.0*u_height,curvePos.z));
-            vec4 FinalMix  = mix(MixColor, mountaintop, smoothstep(200.0+30.0*u_height, 500.0+30.0*u_height, curvePos.z*(1.0-2.0*noise)));
+            MixColor  = mix(MixColor, mountaintop, smoothstep(200.0+50.0*u_height, 400.0+50.0*u_height, curvePos.z*(1.0-2.0*noise)));
+            vec4 FinalMix  = mix(MixColor, mountaintop, smoothstep(400.0+50.0*u_height, 500.0+50.0*u_height, curvePos.z));
             
-            gl_FragColor = FinalMix*vec4(u_ambLight,1.0);
+          //set FragColor to mixed colors*the ambient light (amb light is defined in index.hmtl)
+            gl_FragColor = FinalMix;
 
-            //diffuse
-            vec3 addedLights = vec3(0.0,0.0,0.0);            
-            float diff = 0.4*max(0.0,dot(normalize(NewNormal), normalize(u_light1Pos-vecPos.xyz)));
+        //diffuse light
+        //SKA DERT VARA VECPOS ELLER CURVEPOS??
+
+            vec3 addedLights = u_ambLight;            
+            float diff = max(-1.0,dot(NewNormal, normalize(normalize(curvePos.xyz)-normalize(u_light1Pos))));
             addedLights += diff*u_light1Col;
-            diff += 0.4*max(0.0,dot(normalize(NewNormal), normalize(u_light2Pos-vecPos.xyz)));
+            diff = max(-1.0,dot(NewNormal, normalize(normalize(curvePos.xyz)-normalize(u_light2Pos))));
             addedLights += diff*u_light2Col;
 
-            gl_FragColor = mix(vec4(addedLights,1.0)*gl_FragColor,gl_FragColor,0.7);
-
-
-        /*ye olde Lights
-            vec3 addedLights = vec3(0.0,0.0,0.0);
-
-		        vec3 lightDirection = normalize(u_light1Pos-vecPos.xyz); 
-		        addedLights += clamp(dot(lightDirection,normalize(NewNormal)), 0.0, 1.0)*u_light1Col;
-
-		        vec3 lightDirection2 = normalize(u_light2Pos-vecPos.xyz);
-		        addedLights += clamp(dot(lightDirection2,normalize(NewNormal)), 0.0, 1.0)*u_light2Col;
-
-            addedLights += u_diffuseLight;
-        */
-
+            gl_FragColor = vec4(addedLights,1.0)*gl_FragColor;
 
         }
 `;   
