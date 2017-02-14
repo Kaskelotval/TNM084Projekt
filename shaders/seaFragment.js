@@ -113,22 +113,23 @@ float snoise(vec3 v)
         uniform vec3 u_light2Col;
         uniform vec3 u_light2Pos;
         uniform vec3 u_ambLight;
+        uniform vec3 u_camPos;
 
         varying vec3 vecNormal;
         varying vec3 vecPos;
         varying vec3 vUv;
-        varying vec3 camP;
+        varying vec3 camP; 
         varying vec3 camN;
 
         void main(void) {
             //specular
-           vec3 viewDir = normalize(cameraPosition-vecPos);  
+           vec3 viewDir = normalize(u_camPos-vecPos);  
            vec4 alphaV = vec4(1.0, 1.0, 1.0, 0.9); 
 
             //camstuff
 		       vec3 st = vUv;
            vec3 noise1 = vec3((vUv.x), (vUv.y), 1.0);
-           vec3 noise2  = vec3(vUv.x*30.0, vUv.y*30.0, 1.0);
+           vec3 noise2  = vec3(vUv.x*0.3, vUv.y*0.3, 1.0);
 
 
            float noise = 0.5 * snoise(noise1);
@@ -141,14 +142,19 @@ float snoise(vec3 v)
 
             //LIGHTs
             //diffuse
-
             vec3 addedLights = u_ambLight;            
-            float diff = max(0.0,dot(normalize(vecNormal), normalize(u_light1Pos-vecPos.xyz)));
+            float diff = max(0.0,dot(normalize(vecNormal), normalize(u_light1Pos)));
             addedLights += diff*u_light1Col;
-            diff += max(0.0,dot(normalize(vecNormal), normalize(u_light2Pos-vecPos.xyz)));
+            diff += max(0.0,dot(normalize(vecNormal), normalize(u_light2Pos)));
             addedLights += diff*u_light2Col;
             //specular
-            
-            gl_FragColor = mix(vec4(addedLights,1.0)*gl_FragColor,gl_FragColor,0.7)*alphaV;
+            vec3 R = normalize(reflect(normalize(u_light1Pos),normalize(vecNormal)) );
+            float specF = max(0.0, dot(-R, -vec3(viewDir.x, viewDir.y, viewDir.z)));
+            addedLights += specF*u_light1Col;
+            R = normalize(reflect(normalize(u_light2Pos),normalize(vecNormal)) );
+            specF = max(0.0, dot(-R, -vec3(viewDir.x, viewDir.y, viewDir.z)));
+            addedLights += specF*u_light2Col;
+
+            gl_FragColor = mix(vec4(addedLights,1.0)*gl_FragColor,gl_FragColor,0.7)*alphaV ;
         }
 `;   

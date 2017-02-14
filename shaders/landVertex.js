@@ -134,7 +134,6 @@ float snoise(vec3 v, out vec3 gradient)
         	curvePos = vec4(position,1.0);
 
         	vec3 noise1 = vec3(u_nx+vUv.x*0.005, u_ny+vUv.y*0.005, 1.0);
-        	vec3 noise2  = vec3(vUv.x*200.0, vUv.y*200.0, 1.0);
 
           vec3 temp;
           vec3 temp2;
@@ -148,18 +147,17 @@ float snoise(vec3 v, out vec3 gradient)
           for(float i = 0.0 ; i<10.0 ; i += 1.0)
           {
             float fact = exp(i);
-            curvePos.z += u_height*(u_b/(fact*0.01))*snoise(fact*u_a*noise1,temp); //behövs denna sista grej?
-                          
+            curvePos.z += u_height*(1.0/(fact*0.01))*snoise(fact*u_a*noise1,temp)-(30.0-2.0*u_height);                          
             grad1 += temp;
-            grad2 += temp3;                          
           }
-          grad = u_a*grad1;
           //now we here.
-
+          //Calculate new normal using the gradients from the noise functions
+          grad = u_height*(1.0/(10.0))*u_a*grad1;
           gradP = dot(grad,normalize(normal))*normalize(normal);
           vec3 gradT = grad - gradP;
-          NewNormal = mat3(projectionMatrix)*normalize(normal-gradT);        	
-          vecPos = projectionMatrix*curvePos; //Gör denna något??
+          NewNormal = mat3(projectionMatrix)*normalize(normal-gradT); 
+
+          vecPos = curvePos*projectionMatrix; //Gör denna något??
           gl_Position = projectionMatrix*viewMatrix*curvePos;
 
         	

@@ -88,10 +88,11 @@
             
 			renderer.setSize( window.innerWidth, window.innerHeight );
             container = document.getElementById( 'container' );
+            container.appendChild( renderer.domElement );
 
            	scene = new THREE.Scene();
 
-			camera	= new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 1, 10000000 );
+			camera	= new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 1, 1000000 );
 
 
 			camera.position.set(2000, 2000, 2000);
@@ -111,7 +112,7 @@
 			light1.position.set(0.0,0.0,1.0);
 			light1.add(lightBall);
 			scene.add(light1);
-			var light1Col = new THREE.Vector3(0.5,0.5,0.5);
+			var light1Col = new THREE.Vector3(0.7,0.6,0.5);
 
 			light2 = new THREE.PointLight(0xffffff, 1.0);
 			var lightBall = new THREE.Mesh( new THREE.SphereGeometry( 10, 10, 10 ), new THREE.MeshBasicMaterial( { color: 0xFF0000 } ) );
@@ -138,7 +139,7 @@
 
             	};
 
-            var geometry = new THREE.PlaneGeometry( size_var.size_var, size_var.size_var, 400,400 );
+            var geometry = new THREE.PlaneGeometry( size_var.size_var, size_var.size_var, 100,100 );
             var material = new THREE.ShaderMaterial( {
                 uniforms: suniforms,
                 vertexShader: seaVertex,
@@ -173,7 +174,7 @@
 
 			};
 
-            landgeometry = new THREE.PlaneGeometry( size_var.size_var, size_var.size_var, 400,400);
+            landgeometry = new THREE.PlaneGeometry( size_var.size_var, size_var.size_var, 500,500);
             landmaterial = new THREE.ShaderMaterial( {
                 uniforms: luniforms,
                 vertexShader: landVertex,
@@ -186,7 +187,6 @@
             land.position.z = -3;	            
 			scene.add( land );
 
-            container.appendChild( renderer.domElement );
 
             onWindowResize();
             window.addEventListener( 'resize', onWindowResize, false );
@@ -217,9 +217,9 @@
             luniforms.u_time.value += 0.05*speed_var.speed_var;
                	//Move lights
         	//light1.position.set(camera.position.x,camera.position.y,camera.position.z);
-        	light1.position.x = Math.sin(Math.PI*sun_placement.sun_placement)*(disp*2.0);
-        	light1.position.z = Math.cos(Math.PI*sun_placement.sun_placement)*(disp*2.0);
-        	light1.position.y = Math.sin(Math.PI*sun_placement2.sun_placement2)*(disp*2.0);
+        	light1.position.x = Math.sin(Math.PI*sun_placement.sun_placement)*(disp*10.0);
+        	light1.position.z = Math.cos(Math.PI*sun_placement.sun_placement)*(disp*10.0);
+        	light1.position.y = Math.sin(Math.PI*sun_placement2.sun_placement2)*(disp*10.0);
         	light2.position.x = Math.cos(suniforms.u_time.value*0.1)*disp;
         	light2.position.y = Math.sin(suniforms.u_time.value*0.1)*disp;
         	light2.position.z = 200.0;
