@@ -148,12 +148,12 @@ float snoise(vec3 v)
             diff += max(0.0,dot(normalize(vecNormal), normalize(u_light2Pos)));
             addedLights += diff*u_light2Col;
             //specular
-            vec3 R = normalize(reflect(normalize(u_light1Pos),normalize(vecNormal)) );
-            float specF = max(0.0, dot(-R, -vec3(viewDir.x, viewDir.y, viewDir.z)));
-            addedLights += specF*u_light1Col;
-            R = normalize(reflect(normalize(u_light2Pos),normalize(vecNormal)) );
-            specF = max(0.0, dot(-R, -vec3(viewDir.x, viewDir.y, viewDir.z)));
-            addedLights += specF*u_light2Col;
+            vec3 R = normalize(reflect(normalize(vecPos-u_light1Pos),normalize(vecNormal)) );
+            float specF = max(0.0, dot(R, vec3(viewDir.x, viewDir.y, viewDir.z)));
+            addedLights += 0.01*specF*u_light1Col;
+            R = normalize(reflect(normalize(vecPos-u_light2Pos),normalize(vecNormal)) );
+            specF = max(0.0, dot(R, vec3(viewDir.x, viewDir.y, viewDir.z)));
+            addedLights += 0.01*specF*u_light2Col;
 
             gl_FragColor = mix(vec4(addedLights,1.0)*gl_FragColor,gl_FragColor,0.7)*alphaV ;
         }

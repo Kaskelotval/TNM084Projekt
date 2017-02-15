@@ -134,17 +134,14 @@ float snoise(vec3 v, out vec3 gradient)
           for(float i = 0.0 ; i<10.0 ; i += 1.0)
           {
             float f = exp(i);
-            newpos.z += 0.5*snoise(f*0.005*position+vec3(0.5*u_time), temp)*sin(u_time)  ;
+            newpos.z += 0.5*snoise(f*0.005*position+vec3(0.2*u_time), temp)*sin(u_time)  ;
           }
           
-          gl_Position = projectionMatrix*modelViewMatrix*vec4(newpos, 1.0 );
-          grad = temp;
+          grad = 0.5*temp;
           vec3 gradP = dot(grad,normalize(normal))*normalize(normal);
           vec3 gradT = grad - gradP;
-          vecNormal = normalize(normal-gradT);
-          //  gl_Position = vec4( position, 1.0 );
-
-        	
+          vecNormal = mat3(projectionMatrix)*normalize(normal-gradT);
+          gl_Position = projectionMatrix*modelViewMatrix*vec4(newpos, 1.0 );      	
 
         }
     
