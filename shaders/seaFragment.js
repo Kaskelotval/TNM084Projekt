@@ -126,6 +126,9 @@ float snoise(vec3 v)
 
            vec3 viewDir = normalize(u_camPos-newpos);  
            vec4 alphaV = vec4(1.0, 1.0, 1.0, 0.9); 
+           float Shininess = 200.0;
+           vec3 SpecularColor = vec3(1.0, 1.0, 1.0);    
+           float SpecularIntensity = 1.0;
 
             //camstuff
 		       vec3 st = vUv;
@@ -144,17 +147,17 @@ float snoise(vec3 v)
             //LIGHTs
             //diffuse
             vec3 addedLights = u_ambLight;            
-            float diff = max(0.0,dot(normalize(vecNormal), normalize(u_light1Pos)));
+            float diff = max(0.0,dot(normalize(vecNormal), -normalize(u_light1Pos)));
             addedLights += diff*u_light1Col;
             diff += max(0.0,dot(normalize(vecNormal), normalize(u_light2Pos)));
             addedLights += diff*u_light2Col;
             //specular
             vec3 R = normalize(reflect(normalize(u_light1Pos-newpos),normalize(vecNormal)) );
-            float specF = max(0.0, dot(R, vec3(-viewDir.x, -viewDir.y, viewDir.z)));
-            addedLights += 0.7*specF*u_light1Col;
-            R = normalize(reflect(normalize(u_light2Pos-newpos),normalize(vecNormal)) );
-            specF = max(0.0, dot(R, vec3(-viewDir.x, -viewDir.y, viewDir.z)));
-            addedLights += 0.7*specF*u_light2Col;
+            float specF = max(0.0, dot(R, vec3(viewDir.x, viewDir.y, -viewDir.z)));
+            addedLights += 0.7*specF*SpecularIntensity*u_light1Col;
+            R = normalize(reflect(normalize(u_light2Pos-newpos),-normalize(vecNormal)) );
+            specF = max(0.0, dot(R, vec3(viewDir.x, viewDir.y, viewDir.z)));
+            addedLights += 0.7*specF*SpecularIntensity*u_light2Col;
 
             gl_FragColor = vec4(addedLights,1.0)*gl_FragColor*alphaV;
 

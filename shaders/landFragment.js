@@ -132,10 +132,10 @@ float snoise(vec3 v)
             //noise input vectors
             vec3 noise1 = vec3(vUv.x*0.05, vUv.y*0.05, 1.0);
             vec3 noise2  = vec3(vUv.y*30.0, vUv.x*30.0, 1.0);
-            vec3 noise3 = vec3(vUv.x*0.0005, vUv.y*0.0005, 1.0);
+            vec3 noise3 = vec3(vUv.x*0.005, vUv.y*0.006, 1.0);
             //noise
             float noise = 0.05 * snoise(noise1);
-            float secnoise = snoise(noise3);
+            float secnoise = 0.4*snoise(noise3);
             noise += 0.025 * snoise(noise2);
             //coordinate
 		        vec3 st = vUv;
@@ -151,9 +151,11 @@ float snoise(vec3 v)
         //mix colors
             vec4 MixColor = mix(darkSand, sand, smoothstep(-500.0, 2.0,curvePos.z));
             MixColor = mix(MixColor, grass, smoothstep(20.0, 40.0, curvePos.z*(1.0-2.0*noise)));
-            MixColor = mix(MixColor, grass2, smoothstep(40.0+u_height, 100.0+u_height, curvePos.z*(1.0-2.0*noise)));
+            MixColor = mix(MixColor, grass2, smoothstep(0.2, 1.0, secnoise));
             MixColor = mix(MixColor, mountain, smoothstep(200.0,200.0+30.0*u_height,curvePos.z));
-            MixColor = mix(MixColor,mountaintop,smoothstep(secnoise,500.0,abs(curvePos.z*NewNormal.x*(1.0-2.0*noise))));            
+            if(curvePos.z > 0.0)
+              MixColor = mix(MixColor,mountaintop,smoothstep(secnoise,500.0,abs(curvePos.z*NewNormal.x*(1.0-2.0*noise))));            
+            
             MixColor  = mix(MixColor, mountaintop, smoothstep(300.0+30.0*u_height, 1000.0+30.0*u_height, curvePos.z*(1.0-2.0*noise)));
             vec4 FinalMix  = mix(MixColor, mountaintop, smoothstep(100.0+30.0*u_height, 2000.0+30.0*u_height, curvePos.z));
             
@@ -163,7 +165,7 @@ float snoise(vec3 v)
         //diffuse light
 
             vec3 addedLights = u_ambLight;            
-            float diff = max(0.0,dot(NewNormal,-normalize(u_light1Pos)));
+            float diff = max(0.0,dot(vec3(NewNormal.x,-NewNormal.y,NewNormal.z),-normalize(u_light1Pos)));
             addedLights += diff*u_light1Col;
             diff = max(0.0,dot(vec3(NewNormal.x,-NewNormal.y,NewNormal.z),normalize(u_light2Pos)));
             addedLights += diff*u_light2Col;

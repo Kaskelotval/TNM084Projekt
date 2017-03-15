@@ -2,29 +2,20 @@ body {
 	overflow	: hidden;
 	padding		: 0;
 	margin		: 0;
-
 	color		: #222;
 	background-color: #BBB;
-	font-family	: arial;
+	font-family: 'Open Sans', sans-serif;
 	font-size	: 100%;
 }
-#info .top {
-	position	: absolute;
-	top		: 0px;
-	width		: 100%;
-	padding		: 5px;
-	text-align	: center;
+#bar{
+	padding-top: 5px;
+	padding-left: 10px;
+	text-align: left;
+	position: absolute;
+	background-color: #47c266;
+	font-size: 0.7em;
+	height: 50px;
+	width: 100%;
+	color: #fff;
 }
-#info a {
-	color		: #66F;
-	text-decoration	: none;
-}
-#info a:hover {
-	text-decoration	: underline;
-}
-#info .bottom {
-	position	: absolute;
-	bottom		: 0px;
-	right		: 5px;
-	padding		: 5px;
-}
+
