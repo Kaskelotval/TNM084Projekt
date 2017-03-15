@@ -44,7 +44,7 @@
         var camera, scene, renderer, cameraControls;
         var uniforms, light1, light2, sphere;
         var landMeshRef, seaMeshRef;
-        var nx, ny, size_var, a_var, b_var, c_var, height_var, speed_var, sun_placement, sun_placement2;
+        var nx, ny, size_var, Land_Size, Land_Variation, Height_multiplier, Time_speed, sun_placement, sun_placement2,sun,light;
         var date = new Date();   
         var disp = 2000;     
 
@@ -57,26 +57,27 @@
         function init() {
 
           	//initial values
-          	size_var = {size_var:5000};
-          	height_var = {height_var:5.0};
-          	a_var = {a_var:0.01};
-          	b_var = {b_var:1.0};
-          	c_var = {c_var:0.5};
-          	speed_var = {speed_var:1.0};
-          	sun_placement = {sun_placement:0.0};
-          	sun_placement2 = {sun_placement2:0.0};
+          	size_var = {size_var:10000};
+          	height_var = {Height_multiplier:Math.random()*10.0+2.0};
+          	a_var = {Land_Size: Math.random()*0.04+0.001};
+          	b_var = {Land_Variation:Math.random()*200.0};
+          	speed_var = {Time_speed:1.0};
+            displayLight = {Light:false};            
+            displaySun = {Sun:true};
+          	sun_placement = {sun_placement:Math.random()*0.5};
+          	sun_placement2 = {sun_placement2:Math.random()*0.5};
           	nx = {nx:0.0};
           	ny = {ny:100.0};
 
           	//GUI
 			var gui = new dat.GUI();
-			gui.add(size_var,'size_var',100,10000);
-			gui.add(a_var, 'a_var', 0.001, 0.04);
-			gui.add(b_var, 'b_var', 0.1, 2.0);
-			gui.add(c_var, 'c_var', -1.0, 1.0);
-			gui.add(height_var, 'height_var', 0.0, 30.0);
-			gui.add(speed_var, 'speed_var', 0.0, 50.0);
+			gui.add(a_var, 'Land_Size', 0.001, 0.04);
+			gui.add(b_var, 'Land_Variation', 0.0, 200.0);
+			gui.add(height_var, 'Height_multiplier', 0.0, 30.0);
+			gui.add(speed_var, 'Time_speed', 0.0, 5.0);
+            gui.add(displaySun, 'Sun');
 			gui.add(sun_placement,'sun_placement',-0.5,0.5);
+            gui.add(displayLight, 'Light');
 			gui.add(sun_placement2,'sun_placement2',-0.5,0.5);
 			gui.add(nx,'nx',-100.0,100.0);
 			gui.add(ny,'ny',-100.0,100.0);
@@ -84,7 +85,7 @@
 
 			//RENDERER
           	renderer = new THREE.WebGLRenderer({alpha: true});
-			renderer.setClearColor( 0xffffff );
+			renderer.setClearColor( 0xffffff);
             
 			renderer.setSize( window.innerWidth, window.innerHeight );
             container = document.getElementById( 'container' );
@@ -127,7 +128,7 @@
 
 			//sea
             suniforms = 	{
-	                u_time: { type: "f", value: 1.0 },
+	                u_time: { type: "f", value: speed_var.Time_speed },
 	                u_resolution: { type: "v2", value: new THREE.Vector2() },
 	                u_mouse: { type: "v2", value: new THREE.Vector2() },
 	                u_light1Pos: { type: "v3", value: light1.position},
@@ -139,7 +140,7 @@
 
             	};
 
-            var geometry = new THREE.PlaneGeometry( size_var.size_var, size_var.size_var, 100,100 );
+            var geometry = new THREE.PlaneGeometry( size_var.size_var, size_var.size_var, 200,200 );
             var material = new THREE.ShaderMaterial( {
                 uniforms: suniforms,
                 vertexShader: seaVertex,
@@ -163,11 +164,10 @@
 	                u_light2Pos: { type: "v3", value: light2.position},
 	                u_light2Col: { type: "v3", value: light2Col},
 	                u_ambLight: { type: "v3", value: ambVec},
-	                u_height: {type: "f", value: height_var.height_var},
-	                u_a: {type: "f", value: a_var.a_var},
-	                u_b: {type: "f", value: b_var.b_var},
-	                u_c: {type: "f", value: c_var.c_var},
-	                u_speed: {type: "f", value: speed_var.speed_var},
+	                u_height: {type: "f", value: height_var.Height_multiplier},
+	                u_a: {type: "f", value: a_var.Land_Size},
+	                u_b: {type: "f", value: b_var.Land_Variation},
+	                u_speed: {type: "f", value: speed_var.Time_speed},
 	                u_camPos: {type: "v3", value: camera.position},
 	                u_nx: {type: "f", value: nx.nx},
 	                u_ny: {type: "f", value: ny.ny},
@@ -180,12 +180,14 @@
                 vertexShader: landVertex,
                 fragmentShader: landFragment,
             } );
+
 			var land = new THREE.Mesh( landgeometry, landmaterial );
             land.position.x = 100;
             land.position.y = 100;			
 			land.rotation.x = Math.PI*3/2;
             land.position.z = -3;	            
 			scene.add( land );
+
 
 
             onWindowResize();
@@ -213,8 +215,8 @@
 
         function render() {
  			cameraControls.update();
-            suniforms.u_time.value += 0.05*speed_var.speed_var;
-            luniforms.u_time.value += 0.05*speed_var.speed_var;
+            suniforms.u_time.value += 0.05*speed_var.Time_speed;
+            luniforms.u_time.value += 0.05*speed_var.Time_speed;
                	//Move lights
         	//light1.position.set(camera.position.x,camera.position.y,camera.position.z);
         	light1.position.x = Math.sin(Math.PI*sun_placement.sun_placement)*(disp*10.0);
@@ -224,17 +226,33 @@
         	light2.position.y = Math.sin(suniforms.u_time.value*0.1)*disp;
         	light2.position.z = 200.0;
 
+            if(displaySun.Sun == false)
+                light1Col = new THREE.Vector3(0.0,0.0,0.0);
+            else
+                light1Col = new THREE.Vector3(0.7,0.7,0.7);
+
+            if(displayLight.Light == false)
+                light2Col = new THREE.Vector3(0.0,0.0,0.0);
+            else
+                light2Col = new THREE.Vector3(1.0,0.0,0.0);
 
             //Update Uniforms
-            luniforms.u_a.value = a_var.a_var;
-            luniforms.u_b.value = b_var.b_var;
-            luniforms.u_c.value = c_var.c_var;
-            luniforms.u_height.value = height_var.height_var;
-            luniforms.u_speed.value = speed_var.speed_var;
+            luniforms.u_a.value = a_var.Land_Size;
+            luniforms.u_b.value = b_var.Land_Variation;
+            luniforms.u_height.value = height_var.Height_multiplier;
+            luniforms.u_speed.value = speed_var.Time_speed;
             luniforms.u_nx.value = nx.nx;
             luniforms.u_ny.value = ny.ny;
             luniforms.u_camPos.value = camera.position;
             suniforms.u_camPos.value = camera.position;
+            luniforms.u_light1Col.value = light1Col;
+            luniforms.u_light2Col.value = light2Col;
+            luniforms.u_light1Pos.value = light1.position;
+            luniforms.u_light2Pos.value = light2.position;
+            suniforms.u_light1Col.value = light1Col;
+            suniforms.u_light2Col.value = light2Col;
+            suniforms.u_light1Pos.value = light1.position;
+            suniforms.u_light2Pos.value = light2.position;
             renderer.render( scene, camera );
         }
     </script>

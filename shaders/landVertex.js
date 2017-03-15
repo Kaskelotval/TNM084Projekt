@@ -115,15 +115,14 @@ float snoise(vec3 v, out vec3 gradient)
 //NOT ASHIMA NOISE
         uniform float u_time;
         uniform float u_height;        
-        uniform float u_a;
-        uniform float u_b;
+        uniform float u_a; //Size
+        uniform float u_b; //variation
         uniform float u_c;
         uniform float u_speed;
         uniform float u_nx;
         uniform float u_ny;
 
         varying vec3 vUv;
-        varying vec4 vecPos;
         varying vec4 curvePos;
         varying vec3 NewNormal;
         varying vec3 grad;
@@ -133,31 +132,29 @@ float snoise(vec3 v, out vec3 gradient)
         	vUv = position;
         	curvePos = vec4(position,1.0);
 
-        	vec3 noise1 = vec3(u_nx+vUv.x*0.005, u_ny+vUv.y*0.005, 1.0);
+          //Create a noise dependant on the position and the variation variable (u_b)
+        	vec3 noise1 = vec3(u_nx+vUv.x*0.005, u_ny+vUv.y*0.005, u_b);
 
+          //Create temps to use for the gradient from snoise
           vec3 temp;
-          vec3 temp2;
-          vec3 temp3;
           //starting at the bottom
-        	curvePos.z = 10.0;
-
+        	curvePos.z = 100.0;
           vec3 grad1 = vec3(0.0);
-          vec3 grad2 = vec3(0.0);
 
+          //Loop 10 times, and 
           for(float i = 0.0 ; i<10.0 ; i += 1.0)
           {
             float fact = exp(i);
             curvePos.z += u_height*(1.0/(fact*0.01))*snoise(fact*u_a*noise1,temp)-(30.0-2.0*u_height);                          
-            grad1 += temp;
+            grad1 += u_height*(1.0/(10.0))*u_a*temp;
           }
           //now we here.
           //Calculate new normal using the gradients from the noise functions
-          grad = u_height*(1.0/(10.0))*u_a*grad1;
+          grad = grad1;
           gradP = dot(grad,normalize(normal))*normalize(normal);
           vec3 gradT = grad - gradP;
-          NewNormal = mat3(projectionMatrix)*normalize(normal-gradT); 
+          NewNormal = -normalize(normal-gradT); 
 
-          vecPos = curvePos*projectionMatrix; //Gör denna något??
           gl_Position = projectionMatrix*viewMatrix*curvePos;
 
         	

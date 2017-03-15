@@ -116,29 +116,30 @@ float snoise(vec3 v)
         uniform vec3 u_camPos;
 
         varying vec3 vecNormal;
-        varying vec3 vecPos;
         varying vec3 vUv;
         varying vec3 camP; 
         varying vec3 camN;
+        varying vec3 newpos;
 
         void main(void) {
             //specular
-           vec3 viewDir = normalize(u_camPos-vecPos);  
+
+           vec3 viewDir = normalize(u_camPos-newpos);  
            vec4 alphaV = vec4(1.0, 1.0, 1.0, 0.9); 
 
             //camstuff
 		       vec3 st = vUv;
            vec3 noise1 = vec3((vUv.x), (vUv.y), 1.0);
-           vec3 noise2  = vec3(vUv.x*0.3, vUv.y*0.3, 1.0);
+           vec3 noise2  = vec3(vUv.x*0.03, vUv.y*0.03, 1.0);
 
 
            float noise = 0.5 * snoise(noise1);
-           noise += 0.25 * snoise(noise2);
+           noise += 50.0 * snoise(noise2);
         	//colors
-			     vec4 basecolor = vec4(0.1, 0.2, 0.3, 1.0);
-           vec4 tops = vec4(0.6, 0.6, 0.6, 1.0);
+			     vec4 basecolor = vec4(0.2, 0.4, 0.5, 1.0);
+           vec4 tops = vec4(0.3, 0.3, 0.4, 1.0);
 
-           gl_FragColor = mix(basecolor, tops, smoothstep(0.0, 5.0,vecPos.z));
+           gl_FragColor = mix(basecolor, tops, smoothstep(0.0, 1.0,newpos.z));
 
             //LIGHTs
             //diffuse
@@ -148,13 +149,14 @@ float snoise(vec3 v)
             diff += max(0.0,dot(normalize(vecNormal), normalize(u_light2Pos)));
             addedLights += diff*u_light2Col;
             //specular
-            vec3 R = normalize(reflect(normalize(vecPos-u_light1Pos),normalize(vecNormal)) );
-            float specF = max(0.0, dot(R, vec3(viewDir.x, viewDir.y, viewDir.z)));
-            addedLights += 0.01*specF*u_light1Col;
-            R = normalize(reflect(normalize(vecPos-u_light2Pos),normalize(vecNormal)) );
-            specF = max(0.0, dot(R, vec3(viewDir.x, viewDir.y, viewDir.z)));
-            addedLights += 0.01*specF*u_light2Col;
+            vec3 R = normalize(reflect(normalize(u_light1Pos-newpos),normalize(vecNormal)) );
+            float specF = max(0.0, dot(R, vec3(-viewDir.x, -viewDir.y, viewDir.z)));
+            addedLights += 0.7*specF*u_light1Col;
+            R = normalize(reflect(normalize(u_light2Pos-newpos),normalize(vecNormal)) );
+            specF = max(0.0, dot(R, vec3(-viewDir.x, -viewDir.y, viewDir.z)));
+            addedLights += 0.7*specF*u_light2Col;
 
-            gl_FragColor = mix(vec4(addedLights,1.0)*gl_FragColor,gl_FragColor,0.7)*alphaV ;
+            gl_FragColor = vec4(addedLights,1.0)*gl_FragColor*alphaV;
+
         }
 `;   

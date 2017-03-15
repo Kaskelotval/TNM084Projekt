@@ -117,30 +117,31 @@ float snoise(vec3 v, out vec3 gradient)
         uniform float u_time;
         varying vec3 vUv;
         varying vec3 vecNormal;
-        varying vec3 vecPos;
         varying vec3 camN;
+        varying vec3 newpos;
 
         void main() {
           //camera normal
           float a = 0.5;
           vUv = position;
           vec3 grad;
-          vec3 temp, temp2;
-        	float noise = 0.005*snoise(0.005*position*vec3(0.289*u_time), temp2);
-        	vec3 newpos = position;
+          vec3 temp;
+          vec3 temp2 = vec3(0.0,0.0,0.0);
+        	newpos = position;
 
           newpos.z = 0.0;
 
           for(float i = 0.0 ; i<10.0 ; i += 1.0)
           {
             float f = exp(i);
-            newpos.z += 0.5*snoise(f*0.005*position+vec3(0.2*u_time), temp)*sin(u_time)  ;
+            newpos.z += 0.05*snoise(f*0.005*position+vec3(0.2*u_time), temp)*sin(u_time);
+            temp2 += 0.05*temp;
           }
           
-          grad = 0.5*temp;
+          grad = temp2;
           vec3 gradP = dot(grad,normalize(normal))*normalize(normal);
           vec3 gradT = grad - gradP;
-          vecNormal = mat3(projectionMatrix)*normalize(normal-gradT);
+          vecNormal = -normalize(normal-gradT);
           gl_Position = projectionMatrix*modelViewMatrix*vec4(newpos, 1.0 );      	
 
         }
