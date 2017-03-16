@@ -128,20 +128,16 @@ float snoise(vec3 v)
         void main(void) {
 
            vec3 SpecularColor = vec3(1.0, 1.0, 1.0);
-           float SpecularIntensity = 0.00000007;
-            vec3 viewDir = normalize(u_camPos-vec3(curvePos.x,curvePos.y,curvePos.z));
-            float slope = dot(normalize(gradP), vec3(0.0,0.0,1.0));
+           float SpecularIntensity = 0.07;
+            vec3 viewDir = normalize(u_camPos-vec3(curvePos.x,curvePos.y,curvePos.z)); //view direction to vertex
             //noise input vectors
-            vec3 noise1 = vec3(vUv.x*0.05, vUv.y*0.05, 1.0);
+            vec3 noise1 = vec3(vUv.x*0.05, vUv.y*0.05, 1.0); 
             vec3 noise2  = vec3(vUv.y*30.0, vUv.x*30.0, 1.0);
             vec3 noise3 = vec3(vUv.x*0.005, vUv.y*0.006, 1.0);
             //noise
             float noise = 0.05 * snoise(noise1);
             float secnoise = 0.4*snoise(noise3);
             noise += 0.025 * snoise(noise2);
-            //coordinate
-		        vec3 st = vUv;
-
             //colors
             vec4 darkSand  = vec4(0.02, 0.02, 0.01, 1.0);
             vec4 sand      = vec4(0.7, 0.6, 0.5, 1.0);
@@ -150,12 +146,12 @@ float snoise(vec3 v)
             vec4 mountain  = vec4(0.3,0.3,0.5,1.0)+0.1*(1.0-noise*2.0);
             vec4 mountaintop  = vec4(0.8, 0.8, 1.0, 1.0)*noise;
 
-        //mix colors
+            //mix colors
             vec4 MixColor = mix(darkSand, sand, smoothstep(-500.0, 2.0,curvePos.z));
             MixColor = mix(MixColor, grass, smoothstep(20.0, 40.0, curvePos.z*(1.0-2.0*noise)));
             MixColor = mix(MixColor, grass2, smoothstep(0.2, 1.0, secnoise));
             MixColor = mix(MixColor, mountain, smoothstep(200.0,200.0+30.0*u_height,curvePos.z));
-            if(curvePos.z > 0.0)
+            if(curvePos.z > 0.0) //mix this one depending on slope (and positive height) , all others are depending on height
               MixColor = mix(MixColor,mountaintop,smoothstep(secnoise,500.0,abs(curvePos.z*NewNormal.x*(1.0-2.0*noise))));            
             
             MixColor  = mix(MixColor, mountaintop, smoothstep(300.0+30.0*u_height, 1000.0+30.0*u_height, curvePos.z*(1.0-2.0*noise)));
@@ -164,15 +160,14 @@ float snoise(vec3 v)
           //set FragColor to mixed colors*the ambient light (amb light is defined in index.hmtl)
             gl_FragColor = FinalMix;
 
-        //diffuse light
-
+          //diffuse light same as seafragment.js kinda
             vec3 addedLights = u_ambLight;            
             float diff = max(0.0,dot(vec3(NewNormal.x,-NewNormal.y,NewNormal.z),-normalize(u_light1Pos)));
             addedLights += diff*u_light1Col;
             diff = max(0.0,dot(vec3(NewNormal.x,-NewNormal.y,NewNormal.z),-normalize(u_light2Pos)));
             addedLights += diff*u_light2Col;
 
-            //specular
+            //specular light same as seafragment.js kinda
             vec3 R = normalize(reflect(normalize(u_light1Pos-curvePos.xyz),normalize(NewNormal)) );
             float specF = max(0.0, dot(R, vec3(viewDir.x, viewDir.y, -viewDir.z)));
             addedLights += specF*SpecularColor*SpecularIntensity;

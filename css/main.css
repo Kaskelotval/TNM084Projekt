@@ -8,13 +8,13 @@ body {
 	font-size	: 100%;
 }
 #bar{
-	padding-top: 5px;
+	padding-top: 20%;
 	padding-left: 10px;
 	text-align: left;
 	position: absolute;
 	background-color: #47c266;
-	font-size: 0.7em;
-	height: 50px;
+	font-size: 2em;
+	height: 100%;
 	width: 100%;
 	color: #fff;
 }

@@ -11,6 +11,7 @@
 		<!-- https://github.com/mrdoob/stats.js -->
 		<script src="vendor/three.js/Stats.js"></script>
 		<script type="text/javascript" src="dat.gui.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>        
 		<script src="vendor/threex/THREEx.screenshot.js"></script>
 		<script src="vendor/threex/THREEx.FullScreen.js"></script>
 		<script src="vendor/threex/THREEx.WindowResize.js"></script>
@@ -79,6 +80,9 @@
                     draw();
                     animate();
                     gui.destroy();
+                    $('#bar').animate({
+                        marginTop: '-=100%'
+                    });                        
                 }
             }            
             gui.add(size_step, 'Size', 1, 10).step(1);

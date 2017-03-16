@@ -121,23 +121,23 @@ float snoise(vec3 v, out vec3 gradient)
         varying vec3 newpos;
 
         void main() {
-          //camera normal
-          float a = 0.5;
-          vUv = position;
-          vec3 grad;
-          vec3 temp;
-          vec3 temp2 = vec3(0.0,0.0,0.0);
+
+          vec3 grad; //gradient to be used in new normal calculation
+          vec3 temp; //temp to be used as gradient from snoise function
+          vec3 temp2 = vec3(0.0,0.0,0.0); //temp2 to be used as iterated gradient
         	newpos = position;
 
-          newpos.z = 0.0;
+          newpos.z = 0.0; //start at depth
 
-          for(float i = 0.0 ; i<10.0 ; i += 1.0)
+          //iterate 10 times ussing the noise functions combined with time and position
+          for(float i = 0.0 ; i<10.0 ; i += 1.0) 
           {
             float f = exp(i);
             newpos.z += 0.05*snoise(f*0.005*position+vec3(0.2*u_time), temp)*sin(u_time);
             temp2 += 0.05*temp;
           }
           
+          //Calculate new normal using the iterated temp2.
           grad = temp2;
           vec3 gradP = dot(grad,normalize(normal))*normalize(normal);
           vec3 gradT = grad - gradP;
