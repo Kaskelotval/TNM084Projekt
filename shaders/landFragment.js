@@ -127,6 +127,8 @@ float snoise(vec3 v)
 
         void main(void) {
 
+           vec3 SpecularColor = vec3(1.0, 1.0, 1.0);
+           float SpecularIntensity = 0.00000007;
             vec3 viewDir = normalize(u_camPos-vec3(curvePos.x,curvePos.y,curvePos.z));
             float slope = dot(normalize(gradP), vec3(0.0,0.0,1.0));
             //noise input vectors
@@ -167,16 +169,16 @@ float snoise(vec3 v)
             vec3 addedLights = u_ambLight;            
             float diff = max(0.0,dot(vec3(NewNormal.x,-NewNormal.y,NewNormal.z),-normalize(u_light1Pos)));
             addedLights += diff*u_light1Col;
-            diff = max(0.0,dot(vec3(NewNormal.x,-NewNormal.y,NewNormal.z),normalize(u_light2Pos)));
+            diff = max(0.0,dot(vec3(NewNormal.x,-NewNormal.y,NewNormal.z),-normalize(u_light2Pos)));
             addedLights += diff*u_light2Col;
 
             //specular
             vec3 R = normalize(reflect(normalize(u_light1Pos-curvePos.xyz),normalize(NewNormal)) );
-            float specF = max(0.0, dot(R, vec3(viewDir.x, viewDir.y, viewDir.z)));
-            addedLights += 0.7*specF*u_light1Col;
+            float specF = max(0.0, dot(R, vec3(viewDir.x, viewDir.y, -viewDir.z)));
+            addedLights += specF*SpecularColor*SpecularIntensity;
             R = normalize(reflect(normalize(u_light2Pos-curvePos.xyz),-normalize(NewNormal)) );
-            specF = max(0.0, dot(R, vec3(viewDir.x, viewDir.y, viewDir.z)));
-            addedLights += 0.7*specF*u_light2Col;
+            specF = max(0.0, dot(R, vec3(viewDir.x, viewDir.y, -viewDir.z)));
+            addedLights += specF*SpecularColor*SpecularIntensity;
             gl_FragColor = vec4(addedLights,1.0)*gl_FragColor;
 
         }

@@ -117,7 +117,6 @@ float snoise(vec3 v, out vec3 gradient)
         uniform float u_height;        
         uniform float u_a; //Size
         uniform float u_b; //variation
-        uniform float u_c;
         uniform float u_speed;
         uniform float u_nx;
         uniform float u_ny;
@@ -146,15 +145,17 @@ float snoise(vec3 v, out vec3 gradient)
           {
             float fact = exp(i);
             curvePos.z += u_height*(1.0/(fact*0.01))*snoise(fact*u_a*noise1,temp)-(30.0-2.0*u_height);                          
-            grad1 += u_height*(1.0/(10.0))*u_a*temp;
+            grad1 += u_height*(1.0/(10.0))*u_a*temp; //multiply temp every time with the same as the snoise function
           }
           //now we here.
+
           //Calculate new normal using the gradients from the noise functions
           grad = grad1;
           gradP = dot(grad,normalize(normal))*normalize(normal);
           vec3 gradT = grad - gradP;
           NewNormal = -normalize(normal-gradT); 
 
+          //set position
           gl_Position = projectionMatrix*viewMatrix*curvePos;
 
         	

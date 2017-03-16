@@ -125,7 +125,7 @@
 
             //Lights
             light1 = new THREE.PointLight(0xffffff, 1.0);
-            var lightBall = new THREE.Mesh( new THREE.SphereGeometry( 300, 16, 16 ), new THREE.MeshBasicMaterial( { color: 0xFF0000 } ) );
+            var lightBall = new THREE.Mesh( new THREE.SphereGeometry( 300, 16, 16 ), new THREE.MeshBasicMaterial( { color: 0xFFFF00 } ) );
             light1.position.set(0.0,0.0,1.0);
             light1.add(lightBall);
             scene.add(light1);
@@ -139,7 +139,7 @@
             var light2Col = new THREE.Vector3(0.3,0.2,0.2);
 
 
-            var amb = 0.2;
+            var amb = 0.15;
             var ambVec = new THREE.Vector3(amb,amb,amb);
 
             //sea
@@ -240,14 +240,31 @@
         	light2.position.y = Math.sin(suniforms.u_time.value*0.1)*disp;
         	light2.position.z = 200.0;
 
+            //These if-statements should be moved to a function.
             if(displaySun.Sun == false)
+            {
                 light1Col = new THREE.Vector3(0.0,0.0,0.0);
+                light1.visible = false;
+            }
             else
-                light1Col = new THREE.Vector3(0.7+0.1*(10.0-Math.abs(light1.position.z/disp)),0.7-0.005*(10.0-Math.abs(light1.position.z/disp)),0.7+0.005*(10.0-Math.abs(light1.position.z/disp)));
+            {
+                light1Col = new THREE.Vector3(0.5+0.1*(10.0-Math.abs(light1.position.z/disp)),0.5-0.005*(10.0-Math.abs(light1.position.z/disp)),0.5+0.005*(10.0-Math.abs(light1.position.z/disp)));
+                light1.visible = true;
+
+            }
+
             if(displayLight.Light == false)
+            {
                 light2Col = new THREE.Vector3(0.0,0.0,0.0);
+                light2.visible = false;
+
+            }
             else
-                light2Col = new THREE.Vector3(1.0,0.0,0.0);
+            {
+                light2Col = new THREE.Vector3(0.5,0.0,0.0);    
+                light2.visible = true;
+
+            }
 
             //Update Uniforms
             luniforms.u_a.value = a_var.Land_Size;

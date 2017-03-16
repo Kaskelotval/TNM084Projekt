@@ -122,17 +122,15 @@ float snoise(vec3 v)
         varying vec3 newpos;
 
         void main(void) {
-            //specular
+           //specular
 
            vec3 viewDir = normalize(u_camPos-newpos);  
-           vec4 alphaV = vec4(1.0, 1.0, 1.0, 0.9); 
-           float Shininess = 200.0;
-           vec3 SpecularColor = vec3(1.0, 1.0, 1.0);    
-           float SpecularIntensity = 1.0;
+           vec4 alphaV = vec4(1.0, 1.0, 1.0, 0.95); //Alpha for water. 
+           vec3 SpecularColor = vec3(1.0, 1.0, 1.0);
+           float SpecularIntensity = 0.1;
 
-            //camstuff
 		       vec3 st = vUv;
-           vec3 noise1 = vec3((vUv.x), (vUv.y), 1.0);
+           vec3 noise1 = vec3((vUv.x), (vUv.y), 1.0); //
            vec3 noise2  = vec3(vUv.x*0.03, vUv.y*0.03, 1.0);
 
 
@@ -149,15 +147,15 @@ float snoise(vec3 v)
             vec3 addedLights = u_ambLight;            
             float diff = max(0.0,dot(normalize(vecNormal), -normalize(u_light1Pos)));
             addedLights += diff*u_light1Col;
-            diff += max(0.0,dot(normalize(vecNormal), normalize(u_light2Pos)));
+            diff += max(0.0,dot(normalize(vecNormal), -normalize(u_light2Pos)));
             addedLights += diff*u_light2Col;
             //specular
             vec3 R = normalize(reflect(normalize(u_light1Pos-newpos),normalize(vecNormal)) );
             float specF = max(0.0, dot(R, vec3(viewDir.x, viewDir.y, -viewDir.z)));
-            addedLights += 0.7*specF*SpecularIntensity*u_light1Col;
+            addedLights += specF*SpecularIntensity*SpecularColor;
             R = normalize(reflect(normalize(u_light2Pos-newpos),-normalize(vecNormal)) );
-            specF = max(0.0, dot(R, vec3(viewDir.x, viewDir.y, viewDir.z)));
-            addedLights += 0.7*specF*SpecularIntensity*u_light2Col;
+            specF = max(0.0, dot(R, vec3(viewDir.x, viewDir.y, -viewDir.z)));
+            addedLights += specF*SpecularIntensity*SpecularColor;
 
             gl_FragColor = vec4(addedLights,1.0)*gl_FragColor*alphaV;
 
