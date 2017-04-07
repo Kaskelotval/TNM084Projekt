@@ -1,3 +1,5 @@
+Project done in TNM084 to study procedurally generated textures and shapes. This is a landscape generator that uses WebGl and Three.js.
+
 To create these shapes, the application uses Simplex Noise \cite{simplex}. The code for the noise was downloaded from the [Ashima Github](https://github.com/ashima/webgl-noise)
 All the hills, shores, mountains and sea in the application are calculated and executed in the shaders. 
 
